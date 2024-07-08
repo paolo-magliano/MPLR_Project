@@ -2,10 +2,11 @@ import numpy as np
 import scipy as sp
 
 class LR:
-    def __init__(self, l=0.001):
+    def __init__(self, l=0.001, regularization=True):
         self.hyper_params = {
             'l': l
         }
+        self.regularization = regularization
 
     def __obj_function__(self, params, data, label, prior_true=None):
         l = self.hyper_params['l']
@@ -14,7 +15,7 @@ class LR:
 
         prior_wheight = np.where(label == 1, prior_true / np.sum(label == 1), (1 - prior_true) / np.sum(label == 0)) if prior_true is not None else np.ones(data.shape[1]) / data.shape[1]
 
-        regularization = l * np.dot(w, w) / 2
+        regularization = l * np.dot(w, w) / 2 if self.regularization else 0
         z = np.where(label == 1, 1, -1)
         function = (np.logaddexp(0, -z * (np.dot(w, data) + b)) * prior_wheight).sum() + regularization
        

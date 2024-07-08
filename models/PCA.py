@@ -1,3 +1,7 @@
+import numpy as np
+
+from utils.numpy_utils import vcol
+
 class PCA:
     def __init__(self, m):
         self.m = m
@@ -6,7 +10,7 @@ class PCA:
         covariance = np.cov(data - vcol(data.mean(1)), bias=True)
         eigenvalues, eigenvectors = np.linalg.eigh(covariance)
 
-        self.principal_components = eigenvectors[:, ::-1][:, 0:m]
+        self.principal_components = eigenvectors[:, ::-1][:, 0:self.m]
 
         return self.transform(data), self.principal_components
 

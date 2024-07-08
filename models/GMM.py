@@ -74,8 +74,6 @@ class GMM:
             log_likelihood_old = log_likelihood_new
             log_likelihood_new = logpdf_GMM(data, means, covariances, weights).mean()
 
-        print(f'Log likelihood: {log_likelihood_new}')
-
         return means, covariances, weights
 
     def fit(self, data, label):
@@ -84,7 +82,6 @@ class GMM:
         weights = [None for _ in np.unique(label)]
         for i in np.unique(label):
             while means[i] is None or means[i].shape[0] < self.hyper_params['m']:
-                print(f'Fitting GMM with {1 if means[i] is None else means[i].shape[0] * 2} components for class {i}')
                 means[i], covariances[i], weights[i] = self.__em__step__(data[:, label == i], means[i], covariances[i], weights[i])
 
         self.means, self.covariances, self.weights = np.array(means), np.array(covariances), np.array(weights)

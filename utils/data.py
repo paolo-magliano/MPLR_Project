@@ -8,6 +8,12 @@ def load_data(file_path):
 
     return data, label
 
+def shuffle_data(data, label, seed=0):
+    np.random.seed(seed)
+    idx = np.random.permutation(data.shape[1])
+
+    return data[:, idx], label[idx]
+
 def split_db_2to1(data, label, seed=0):
     n_samples_train = int(data.shape[1]*2.0/3.0)
     np.random.seed(seed)
@@ -46,7 +52,15 @@ def k_fold_data(k_data, k_label, index):
 
     return (data_train, label_train), (data_test, label_test)
 
-if __name__ == "__main__":
-    data, label = load_data("data/iris.txt")
-    print(f'Data: {data}')
-    print(f'Label: {label}')
+def k_data(data, label, index, k):
+    test_indexes = np.arange(index, data.shape[1], k)
+    train_indexes = np.delete(np.arange(data.shape[1]), test_indexes)
+
+    return (data[:, train_indexes], label[train_indexes]), (data[:, test_indexes], label[test_indexes])
+
+def k_data_calibration(data, label, index, k):
+    cal_indexes = np.arange(index, data.shape[1], k)
+    test_indexes = np.arange(index + 1, data.shape[1], k)
+    train_indexes = np.delete(np.arange(data.shape[1]), np.concatenate([cal_indexes, test_indexes]))
+
+    return (data[:, train_indexes], label[train_indexes]), (data[:, test_indexes], label[test_indexes]), (data[:, cal_indexes], label[cal_indexes])

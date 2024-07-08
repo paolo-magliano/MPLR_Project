@@ -1,3 +1,8 @@
+import numpy as np
+import scipy as sp
+
+from utils.numpy_utils import vcol
+
 class LDA:
     def __init__(self, m):
         self.m = m
@@ -17,15 +22,25 @@ class LDA:
         between_class_covariance /= data.shape[1]
 
         eigenvalues, eigenvectors = sp.linalg.eigh(between_class_covariance, within_class_covariance)
-        
-        self.principal_components = eigenvectors[:, ::-1][:, 0:m]
+        orthogonal_eigenvectors, _, _ = np.linalg.svd(eigenvectors[:, ::-1][:, 0:self.m])
+
+
+        self.principal_components = orthogonal_eigenvectors[:, 0:self.m]
         transformed_data = self.transform(data)
-        self.threshold = np.mean(transformed_data[:, label == 0]) + np.mean(transformed_data[:, label == 1]) / 2
+        mean_0 = np.mean(transformed_data[:, label == 0])
+        mean_1 = np.mean(transformed_data[:, label == 1])
+        self.threshold = (mean_0 + mean_1) / 2
+        self.change = mean_0 > mean_1
+        if self.change:
+            self.principal_components = -self.principal_components
 
         return transformed_data, self.principal_components
 
     def transform(self, data):
         return np.dot(self.principal_components.T, data)
 
-    def predict_binary(self, data):
-        return self.transform(data) > self.threshold
+    def score(self, data):
+        return self.transform(data)
+
+    def predict_binary(self, data, prior_true=0.5, cost_fp=1, cost_fn=1):
+        return self.score(data) > self.threshold

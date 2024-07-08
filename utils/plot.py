@@ -6,8 +6,28 @@ from models.GMM import logpdf_GMM
 from utils.numpy_utils import vrow, vcol
 import utils.evaluation as eval
 
-def hist_and_scatter(data, label):
-    fig, axes = plt.subplots(data.shape[0], data.shape[0], figsize=(20, 20))
+SHOW = False
+
+def hist(data, label, show=SHOW):
+    rows = 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else 1
+    cols = data.shape[0] // 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else data.shape[0]
+
+    fig, axes = plt.subplots(rows, cols, figsize=(7.5*cols, 7.5*rows))
+    axes = axes.flatten() if data.shape[0] > 1 else [axes]
+    for i in range(data.shape[0]):
+        for k in np.unique(label):
+            axes[i].hist(data[i, label == k], alpha=0.5, label=f'Class {k}', density=True)
+            axes[i].legend()
+    
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/hist.png', bbox_inches='tight')
+        plt.close()
+
+def hist_and_scatter(data, label, show=SHOW):
+    samples = 6000
+    fig, axes = plt.subplots(data.shape[0], data.shape[0], figsize=(7.5*data.shape[0], 7.5*data.shape[0]))
     if data.shape[0] == 1:
         for k in np.unique(label):
             axes.hist(data[0, label == k], alpha=0.5, label=f'Class {k}')
@@ -19,25 +39,36 @@ def hist_and_scatter(data, label):
                         axes[j, i].hist(data[i, label == k], alpha=0.5, label=f'Class {k}', density=True)
                         axes[j, i].legend()
                     else:
-                        axes[j, i].scatter(data[j, label == k], data[i, label == k], alpha=0.5, label=f'Class {k}')
-    plt.show()
+                        data, label = (data[:, :samples], label[:samples]) if data.shape[1] > samples else (data, label)
+                        axes[j, i].scatter(data[j, label == k], data[i, label == k], alpha=0.7, label=f'Class {k}')
+                        axes[j, i].legend()
+    
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/hist_and_scatter.png', bbox_inches='tight')
+        plt.close()
 
-def gaussian_hist(data, label, mean, covariance):
+def gaussian_hist(data, label, mean, covariance, show=SHOW):
     rows = 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else 1
     cols = data.shape[0] // 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else data.shape[0]
 
-    fig, axes = plt.subplots(rows, cols, figsize=(20, 20))
+    fig, axes = plt.subplots(rows, cols, figsize=(7.5*cols, 7.5*rows))
     axes = axes.flatten() if data.shape[0] > 1 else [axes]
     for i in range(data.shape[0]):
         for k in np.unique(label):
             axes[i].hist(data[i, label == k], alpha=0.5, label=f'Class {k}', density=True, bins=50)
             x_values = np.linspace(data[i, :].min(), data[i, :].max(), 1000)
-            axes[i].plot(x_values, np.exp(logpdf_GAU_ND(vrow(x_values), mean[i, k], covariance[i, i, k])), label=f'Class {k}')
+            axes[i].plot(x_values, np.exp(logpdf_GAU_ND(vrow(x_values), mean[k, i], covariance[k, i, i].reshape(1, 1))), label=f'Class {k}')
             axes[i].legend()
     
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/gaussian_hist.png', bbox_inches='tight')
+        plt.close()
 
-def pearson_correlaton(data):
+def pearson_correlaton(data, show=SHOW):
     covariance = np.cov(data, bias=True)
     std_dev = np.sqrt(np.diag(covariance))
     correlation = covariance / np.outer(std_dev, std_dev)
@@ -49,12 +80,17 @@ def pearson_correlaton(data):
             plt.text(j, i, f'{correlation[i, j]:.2f}', ha='center', va='center', color='white')
 
     plt.colorbar()
-    plt.show()
+    
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/pearson_correlation.png', bbox_inches='tight')
+        plt.close()
 
-def confusion_matrix(label, predicted_label):
+def confusion_matrix(label, predicted_label, show=SHOW):
     conf_matrix = eval.confusion_matrix(label, predicted_label)
 
-    fig, ax = plt.subplots(figsize=(5, 5))
+    fig, ax = plt.subplots(figsize=(7.5, 7.5))
     ax.matshow(conf_matrix, cmap='coolwarm')
 
     for i in range(conf_matrix.shape[0]):
@@ -62,11 +98,16 @@ def confusion_matrix(label, predicted_label):
             ax.text(j, i, f'{conf_matrix[i, j]}', ha='center', va='center', color='white')
         
 
-    plt.xlabel('Predicted label')
+    plt.xlabel('Predicted label', bbox_inches='tight')
     plt.ylabel('True label')
-    plt.show()
+    
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/confusion_matrix.png', bbox_inches='tight')
+        plt.close()
 
-def ROC_curve(label, score):
+def ROC_curve(label, score, show=SHOW):
     TPR, FPR, _ = eval.ROC_binary(label, score)
 
     plt.plot(FPR, TPR)
@@ -75,9 +116,13 @@ def ROC_curve(label, score):
     plt.ylabel('True Positive Rate')
     plt.title('ROC Curve')
 
-    plt.show()  
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/ROC_curve.png', bbox_inches='tight')
+        plt.close()
 
-def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1):
+def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
     prior_log_odds = np.linspace(-value_range, value_range, 50)
     prior_true = np.exp(prior_log_odds) / (1 + np.exp(prior_log_odds))
 
@@ -90,13 +135,17 @@ def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1):
     plt.ylabel('DCF value')
     plt.legend()
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/bayes_error.png', bbox_inches='tight')
+        plt.close()
 
-def gmm_hist(data, label, means, covariances, weights):
+def gmm_hist(data, label, means, covariances, weights, show=SHOW):
     rows = 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else 1
     cols = data.shape[0] // 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else data.shape[0]
 
-    fig, axes = plt.subplots(rows, cols, figsize=(20, 20))
+    fig, axes = plt.subplots(rows, cols, figsize=(7.5*cols, 7.5*rows))
     axes = axes.flatten() if data.shape[0] > 1 else [axes]
     for i in range(data.shape[0]):
         for k in np.unique(label):
@@ -106,4 +155,8 @@ def gmm_hist(data, label, means, covariances, weights):
             axes[i].plot(x_values, y_values, label=f'Class {k}')
             axes[i].legend()
 
-    plt.show()
+    if show:
+        plt.show()
+    else:
+        plt.savefig('report/images/gmm_hist.png', bbox_inches='tight')
+        plt.close()
