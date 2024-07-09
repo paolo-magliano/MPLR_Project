@@ -68,7 +68,7 @@ def gaussian_hist(data, label, mean, covariance, show=SHOW):
         plt.savefig('report/images/gaussian_hist.png', bbox_inches='tight')
         plt.close()
 
-def pearson_correlaton(data, show=SHOW):
+def pearson_correlation(data, show=SHOW):
     covariance = np.cov(data, bias=True)
     std_dev = np.sqrt(np.diag(covariance))
     correlation = covariance / np.outer(std_dev, std_dev)

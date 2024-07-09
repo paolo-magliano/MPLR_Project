@@ -59,17 +59,17 @@ if __name__ == "__main__":
     data, label = load_data("data/trainData.txt")
     data, label = shuffle_data(data, label)
 
-    DR = [None] # + [PCA(i) for i in range(1, data.shape[0] + 1)]
+    DRs = [PCA(i) for i in range(1, data.shape[0] + 1)]
 
     k = 10
     prior_true, cost_fp, cost_fn = 0.5, 1, 1
-    model = MVG()
-    plot = True
+    models = [MVG(), TiedMVG(), NaiveMVG()]
+    plot = False
 
-    for dr in DR:
-        print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
-
-        k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
+    for dr in DRs:
+        for model in models:
+            print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
+            k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
 
 
 

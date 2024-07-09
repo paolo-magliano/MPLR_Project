@@ -17,7 +17,7 @@ class MVG:
 
     def fit(self, data, label):
         self.mean = np.array([vcol(data[:, label == i].mean(1)) for i in np.unique(label)])
-        self.covariance = np.array([np.cov(data[:, label == i], bias=True) for i in np.unique(label)])
+        self.covariance = np.array([np.cov(data[:, label == i], bias=True).reshape(data.shape[0], data.shape[0]) for i in np.unique(label)])
 
     def score(self, data):
         log_likelihood_true = logpdf_GAU_ND(data, self.mean[1], self.covariance[1])
@@ -47,7 +47,7 @@ class TiedMVG(MVG):
     def fit(self, data, label):
         self.mean = np.array([vcol(data[:, label == i].mean(1)) for i in np.unique(label)])
         class_covariance = np.array([np.cov(data[:, label == i], bias=True) for i in np.unique(label)])
-        self.covariance = np.array([np.mean(class_covariance, axis=0) for _ in np.unique(label)])
+        self.covariance = np.array([np.mean(class_covariance, axis=0).reshape(data.shape[0], data.shape[0]) for _ in np.unique(label)])
 
 class NaiveMVG(MVG):
     def __init__(self):
@@ -55,7 +55,7 @@ class NaiveMVG(MVG):
 
     def fit(self, data, label):
         self.mean = np.array([vcol(data[:, label == i].mean(1)) for i in np.unique(label)])
-        self.covariance = np.array([np.diag(np.diag(np.cov(data[:, label == i], bias=True))) for i in np.unique(label)])
+        self.covariance = np.array([np.diag(np.diag(np.cov(data[:, label == i], bias=True).reshape(data.shape[0], data.shape[0]))) for i in np.unique(label)])
 
 class TiedNaiveMVG(MVG):
     def __init__(self):
@@ -63,6 +63,6 @@ class TiedNaiveMVG(MVG):
 
     def fit(self, data, label):
         self.mean = np.array([vcol(data[:, label == i].mean(1)) for i in np.unique(label)])
-        class_covariance = np.array([np.diag(np.diag(np.cov(data[:, label == i], bias=True))) for i in np.unique(label)])
+        class_covariance = np.array([np.diag(np.diag(np.cov(data[:, label == i], bias=True).reshape(data.shape[0], data.shape[0]))) for i in np.unique(label)])
         self.covariance = np.array([np.mean(class_covariance, axis=0) for _ in np.unique(label)])
     

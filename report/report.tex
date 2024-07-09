@@ -6,6 +6,8 @@
 \usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[vmargin=1in, hmargin=1.5in]{geometry}
 
 % Title and author information
 \title{Machine Learning and Pattern Recognition Project Report}
@@ -56,16 +58,17 @@ The dataset can be summarized by the image in Figures \ref{fig:dataset}. It show
     \label{fig:dataset}
 \end{figure}
 
-The first two features are mostly overlapping, so it is difficult to separate the two classes. The histograms show that they can be probably well approximated by a Gaussian density function. Further more means are very close to each other and only the second feature has a slightly difference in variance. 
+The first two features are mostly overlapping, so it is difficult to separate the two classes. The histograms show that they can be probably well approximated by a Gaussian density function. Further more means are very close to each other, but the variances are different. 
 
 The third and fourth features are more separated, but still overlapping. Also these features can be approximated by a Gaussian density function but the means are different and variance very similar. These features are more useful in a classification task as they are more discriminative.
 
-The last two features are the most discriminative, they can't be approximated by a simple unimodal Gaussian density function because they seems to be bimodal. Thanks to this behavior they form 4 distinct clusters (two for each feature) that can be easily separated. They are probably the most useful features if the classifier is able to capture the complex structure.
+The last two features are the most discriminative, they can't be approximated by a simple unimodal Gaussian density function because they seems to be bimodal or trimodal. Thanks to this behavior they form 4 distinct clusters (two for each feature) that can be easily separated. They are probably the most useful features if the classifier is able to capture the complex structure.
 
 \section{Lab 3: PCA and LDA}
 \label{sec:pca_lda}
 
 \subsection{Dimensionality Reduction}
+Principal Component Analysis (PCA) is a dimensionality reduction technique that finds the directions of maximum variance in the data. It projects the data onto a lower-dimensional subspace while preserving as much variance as possible. The Figure \ref{fig:dataset_pca} shows the results of PCA on the dataset. The first principal component captures most of the variance and it separates decently the two classes. The other principal components overlap, so they are not very useful for classification.
 
 \begin{figure}[ht]
     \centering
@@ -74,8 +77,7 @@ The last two features are the most discriminative, they can't be approximated by
     \label{fig:dataset_pca}
 \end{figure}
 
-Principal Component Analysis (PCA) is a dimensionality reduction technique that finds the directions of maximum variance in the data. It projects the data onto a lower-dimensional subspace while preserving as much variance as possible.
-The Figure \ref{fig:dataset_pca} shows the results of PCA on the dataset. The first principal component captures most of the variance and it separates decently the two classes. The other principal components overlap, so they are not very useful for classification.
+Linear Discriminant Analysis (LDA) is a supervised dimensionality reduction technique that finds the directions that maximize the separation between classes. The Figure \ref{fig:dataset_lda} shows the results of LDA on the dataset. Only one linear discriminant is found because the number of classes is 2. The linear discriminant separates the two classes partially. It is comparable to the first principal component of PCA.
 
 \begin{figure}[ht]
     \centering
@@ -83,9 +85,6 @@ The Figure \ref{fig:dataset_pca} shows the results of PCA on the dataset. The fi
     \caption{The figure shows the results of LDA on the dataset. The histogram shows data distribution on the only linear discriminant found.}
     \label{fig:dataset_lda}
 \end{figure}
-
-Linear Discriminant Analysis (LDA) is a supervised dimensionality reduction technique that finds the directions that maximize the separation between classes. 
-The Figure \ref{fig:dataset_lda} shows the results of LDA on the dataset. Only one linear discriminant is found because the number of classes is 2. The linear discriminant separates the two classes partially. It is comparable to the first principal component of PCA.
 
 Both cases simplify the dataset as much that the well-distinctive cluster of the last two features is lost. So, the preprocessing techniques cloud be useful to speed up the computation but they could also lose important information. In very simple dataset ad this one, with only 6 dimensions, presumably the best choice is to use the original dataset.
 
@@ -118,14 +117,158 @@ As intuitively retrieved from PCA and LDA graphs, the capabilities of both metho
 In general the performance are terrible considering the simplicity of the dataset. Further more the threshold selection is not optimal, so the performance could be improved by tuning it a little bit.
 
 \section{Lab 4: Multivariate Gaussian density}
-\label{sec:multivariate_gaussian}
-Describe the methods used in your project. Include algorithms, data preprocessing steps, feature selection, model selection, and any other relevant details.
+\label{sec:gaussian_density}
+As preliminary step, the project analyses the correspondence between the features distribution and the Gaussian density function. This is helpful to understand the potential efficacy of model based on Gaussian density.
+The figure \ref{fig:dataset_gaussian} shows the histograms of the dataset and the Gaussian density function that best fits the data.
 
-\subsection{Data Collection and Preprocessing}
-Detail the data sources, collection methods, and preprocessing steps.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/dataset_gaussian.png}
+    \caption{The figure shows the histograms of the dataset and the Gaussian density function that best fits each feature.}
+    \label{fig:dataset_gaussian}
+\end{figure}
 
-\subsection{Algorithm and Model Selection}
-Discuss the algorithms and models used. Include any hyperparameter tuning and model selection processes.
+The results are consistent with the previous analysis. The first four features can be approximated by a unimodal Gaussian density function. Instead, the last two can not be well represented thanks to their multimodality.
+
+
+\section{Lab 5: Multivariate Gaussian Model}
+
+The project analyses the performance of Multivariate Gaussian (MVG) models with different covariance matrices: full, tied, and diagonal. The experiments are conducted with k-fold cross-validation with k equal to 10. The results are shown in Table \ref{tab:mvg_performance}.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXX}
+        \toprule
+        \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
+        \midrule
+        MVG      & 7.45 & 0.15 & 0.131 \\
+        TiedMVG  & 9.62 & 0.193 & 0.176 \\
+        NaiveMVG & 7.48 & 0.15 & 0.13 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models without dimensionality reduction.}
+    \label{tab:mvg_performance}
+\end{table}
+
+The results show that the tied MVG performs worse than the others. This is due to the fact that the covariance matrix change considerably along the features and so it can't be approximated by a single matrix. To visualize this better, the Figure \ref{fig:dataset_gaussian_tied} shows the estimated Gaussian density function for the tied MVG model.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/dataset_gaussian_tied.png}
+    \caption{The figure shows the histograms of the dataset and the Gaussian density function with tied covariance matrix for each feature.}
+    \label{fig:dataset_gaussian_tied}
+\end{figure}
+
+The graphs show that the tied MVG model can practically use only features 3 and 4 as discriminative ones. The other features are approximated with the same gaussian function fro both classes.
+
+\subsection{Correlation Analysis}
+
+In order to analyze further the performance of Naive MVG model respect to the full MVG model, the project computes the pearson correlation coefficient between the features for each class. The results are shown in Figure \ref{fig:dataset_person}. 
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/dataset_pearson_false.png}
+        \caption{Class False.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/dataset_pearson_true.png}
+        \caption{Class True.}
+    \end{subfigure}
+    \caption{The figure shows the Pearson correlation coefficient between the features for each class. Correlated features are close to 1 or -1.}
+    \label{fig:dataset_person}
+\end{figure}
+
+The graphs show the reason why the Naive MVG model performs as well as the full MVG model. The features are not correlated at all, so the assumption of independence is not violated. 
+
+\subsection{Assumption Analysis}
+
+The Gaussian model assumes that features can be jointly modeled by Gaussian distributions. The good-ness of the model is therefore strongly affected by the accuracy of this assumption. As already discussed, the last two features do not satisfy this assumption. To analyze if indeed the last set of features negatively affects our classifier, we can try repeating the classification using only feature 1 to 4. The results are shown in Table \ref{tab:mvg_performance_4}.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXX}
+        \toprule
+        \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
+        \midrule
+        MVG      & 8.35 & 0.167 & 0.148 \\
+        TiedMVG  & 9.73 & 0.195 & 0.175 \\
+        NaiveMVG & 8.35 & 0.167 & 0.149 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models with only the first 4 features.}
+    \label{tab:mvg_performance_4}
+\end{table}
+
+For both MVG and Naive MVG models, the performance is slightly worse than the full dataset. This implies that the last two features are useful anyway, even if they are not well approximated by a Gaussian. 
+
+\subsection{Mean and Variance of Features Analysis}
+
+To further explore how means and variance of the features affect the performance of different approaches, the project repeats the classification using only features 1 and 2 and then only features 3 and 4. This is done because features 1 and 2 means are similar but variances are not, whereas for features 3 and 4 the two classes mainly differ for the feature mean, but show similar variance. The results are shown in Table \ref{tab:mvg_performance_12} and Table \ref{tab:mvg_performance_34}.
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXX}
+        \toprule
+        \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
+        \midrule
+        MVG      & 36.83 & 0.738 & 0.454 \\
+        TiedMVG  & 49.55 & 0.99  & 0.488 \\
+        NaiveMVG & 36.80 & 0.737 & 0.454 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models with only the first 2 features.}
+    \label{tab:mvg_performance_12}
+\end{table}
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXX}
+        \toprule
+        \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
+        \midrule
+        MVG      & 9.67 & 0.194 & 0.175 \\
+        TiedMVG  & 9.68 & 0.194 & 0.175 \\
+        NaiveMVG & 9.68 & 0.194 & 0.175 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models with only the 3 and 4 features.}
+    \label{tab:mvg_performance_34}
+\end{table}
+
+Lets first analyze the generale performance between the two cases. The performance of the first two features is terrible, this is due to the fact that the two classes are not separable at all and this shows how important is the mean of class distribution. Instead, the performance of features 3 and 4 is very good, this is due to the fact that the two classes mean are very different and this remark how much these features are discriminative.
+
+More over, in the first case Tied MVG model performs even worse because the features' variances are unsimilar. Instead in the second case, the performances are the same for all models because the features' variances are pretty the same.
+
+\subsection{Dimensionality reduction}
+Finally the project investigates the performance of MVG models with PCA as a preprocessing technique. The results are shown in Table \ref{tab:mvg_performance_pca}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabularx}{\textwidth}{ll*{6}{X}}
+        \toprule
+        \textbf{Model} & \textbf{Metrics} & \textbf{PCA 1} & \textbf{PCA 2} & \textbf{PCA 3} & \textbf{PCA 4} & \textbf{PCA 5} & \textbf{PCA 6} \\
+        \midrule
+        \multirow{3}{*}{MVG} & Error & 9.7 & 9.23 & 8.78 & 8.33 & 7.38 & 7.45 \\
+                              & DCF & 0.195 & 0.185 & 0.176 & 0.167 & 0.148 & 0.15 \\
+                              & Min DCF & 0.177 & 0.171 & 0.159 & 0.149 & 0.131 & 0.131 \\
+        \midrule
+        \multirow{3}{*}{TiedMVG} & Error Rate & 9.68 & 9.63 & 9.45 & 9.58 & 9.57 & 9.62 \\
+                                 & DCF & 0.194 & 0.193 & 0.19 & 0.192 & 0.192 & 0.193 \\
+                                 & Min DCF & 0.177 & 0.178 & 0.176 & 0.175 & 0.175 & 0.176 \\
+        \midrule
+        \multirow{3}{*}{NaiveMVG} & Error Rate & 9.7 & 9.32 & 9.3 & 9.02 & 8.58 & 8.6 \\
+                                  & DCF & 0.195 & 0.187 & 0.186 & 0.181 & 0.172 & 0.172 \\
+                                  & Min DCF & 0.177 & 0.171 & 0.162 & 0.159 & 0.154 & 0.154 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models with PCA as a preprocessing technique.}
+    \label{tab:mvg_performance_pca}
+\end{table}
+
+The results confirm the hypothesis done in Dimensionality Reduction section. The performance of the classifier is not improved by using PCA as a preprocessing technique due to the lostness of the information. Indeed the best results are obtained with higher number of principal components. Tied MVG model is the only one that performs the same with and without PCA, this is due to PCA that provides features with similar variances.
 
 \subsection{Evaluation Metrics}
 Explain the metrics used to evaluate the performance of your models.
