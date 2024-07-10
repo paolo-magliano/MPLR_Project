@@ -7,7 +7,9 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{multirow}
-\usepackage[vmargin=1in, hmargin=1.5in]{geometry}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage[vmargin=0.8in, hmargin=1.5in]{geometry}
 
 % Title and author information
 \title{Machine Learning and Pattern Recognition Project Report}
@@ -99,18 +101,19 @@ The Table \ref{tab:lda_performance} shows the performance results as error rate,
         \toprule
         \textbf{PCA} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
-        None   & 9.58 & 0.192 & 0.176 \\
-        1 PC  & 9.68 & 0.194 & 0.177 \\
-        2 PC  & 9.63 & 0.193 & 0.178 \\
-        3 PC  & 9.43 & 0.189 & 0.176 \\
-        4 PC  & 9.57 & 0.192 & 0.175 \\
-        5 PC  & 9.58 & 0.192 & 0.175 \\
-        6 PC  & 9.62 & 0.193 & 0.176 \\
+        None   & 9.58 & 0.191 & 0.177 \\
+        1 PC   & 9.68 & 0.193 & 0.179 \\
+        2 PC   & 9.63 & 0.193 & 0.179 \\
+        3 PC   & 9.43 & 0.189 & 0.177 \\
+        4 PC   & 9.57 & 0.191 & 0.177 \\
+        5 PC   & 9.58 & 0.192 & 0.177 \\
+        6 PC   & 9.62 & 0.192 & 0.177 \\
         \bottomrule
     \end{tabularx}
     \caption{Performance metrics for LDA models with various dimensionality reduction techniques.}
     \label{tab:lda_performance}
 \end{table}
+
 
 As intuitively retrieved from PCA and LDA graphs, the capabilities of both methods are similar. In fact, the performance of the classifier is not improved by using PCA as a preprocessing technique. 
 
@@ -141,9 +144,9 @@ The project analyses the performance of Multivariate Gaussian (MVG) models with 
         \toprule
         \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
-        MVG      & 7.45 & 0.15 & 0.131 \\
-        TiedMVG  & 9.62 & 0.193 & 0.176 \\
-        NaiveMVG & 7.48 & 0.15 & 0.13 \\
+        MVG      & 7.45 & 0.148 & 0.133 \\
+        TiedMVG  & 9.62 & 0.192 & 0.177 \\
+        NaiveMVG & 7.48 & 0.149 & 0.132 \\
         \bottomrule
     \end{tabularx}
     \caption{Performance metrics for various MVG models without dimensionality reduction.}
@@ -193,8 +196,8 @@ The Gaussian model assumes that features can be jointly modeled by Gaussian dist
         \toprule
         \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
-        MVG      & 8.35 & 0.167 & 0.148 \\
-        TiedMVG  & 9.73 & 0.195 & 0.175 \\
+        MVG      & 8.35 & 0.167 & 0.149 \\
+        TiedMVG  & 9.73 & 0.194 & 0.176 \\
         NaiveMVG & 8.35 & 0.167 & 0.149 \\
         \bottomrule
     \end{tabularx}
@@ -214,9 +217,9 @@ To further explore how means and variance of the features affect the performance
         \toprule
         \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
-        MVG      & 36.83 & 0.738 & 0.454 \\
-        TiedMVG  & 49.55 & 0.99  & 0.488 \\
-        NaiveMVG & 36.80 & 0.737 & 0.454 \\
+        MVG      & 36.83 & 0.737 & 0.711 \\
+        TiedMVG  & 49.55 & 0.99  & 0.887 \\
+        NaiveMVG & 36.80 & 0.737 & 0.711 \\
         \bottomrule
     \end{tabularx}
     \caption{Performance metrics for various MVG models with only the first 2 features.}
@@ -229,9 +232,9 @@ To further explore how means and variance of the features affect the performance
         \toprule
         \textbf{Model} & \textbf{Error Rate (\%)} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
-        MVG      & 9.67 & 0.194 & 0.175 \\
-        TiedMVG  & 9.68 & 0.194 & 0.175 \\
-        NaiveMVG & 9.68 & 0.194 & 0.175 \\
+        MVG      & 9.67 & 0.193 & 0.176 \\
+        TiedMVG  & 9.68 & 0.194 & 0.177 \\
+        NaiveMVG & 9.68 & 0.194 & 0.177 \\
         \bottomrule
     \end{tabularx}
     \caption{Performance metrics for various MVG models with only the 3 and 4 features.}
@@ -251,57 +254,191 @@ Finally the project investigates the performance of MVG models with PCA as a pre
         \toprule
         \textbf{Model} & \textbf{Metrics} & \textbf{PCA 1} & \textbf{PCA 2} & \textbf{PCA 3} & \textbf{PCA 4} & \textbf{PCA 5} & \textbf{PCA 6} \\
         \midrule
-        \multirow{3}{*}{MVG} & Error & 9.7 & 9.23 & 8.78 & 8.33 & 7.38 & 7.45 \\
-                              & DCF & 0.195 & 0.185 & 0.176 & 0.167 & 0.148 & 0.15 \\
-                              & Min DCF & 0.177 & 0.171 & 0.159 & 0.149 & 0.131 & 0.131 \\
+        \multirow{3}{*}{MVG} & Error & 9.7\% & 9.23\% & 8.78\% & 8.33\% & 7.38\% & 7.45\% \\
+                              & DCF & 0.194 & 0.185 & 0.175 & 0.166 & 0.147 & 0.148 \\
+                              & Min DCF & 0.179 & 0.173 & 0.161 & 0.151 & 0.133 & 0.133 \\
         \midrule
-        \multirow{3}{*}{TiedMVG} & Error Rate & 9.68 & 9.63 & 9.45 & 9.58 & 9.57 & 9.62 \\
-                                 & DCF & 0.194 & 0.193 & 0.19 & 0.192 & 0.192 & 0.193 \\
-                                 & Min DCF & 0.177 & 0.178 & 0.176 & 0.175 & 0.175 & 0.176 \\
+        \multirow{3}{*}{TiedMVG} & Error & 9.68\% & 9.63\% & 9.45\% & 9.58\% & 9.57\% & 9.62\% \\
+                                 & DCF & 0.193 & 0.193 & 0.189 & 0.191 & 0.191 & 0.192 \\
+                                 & Min DCF & 0.179 & 0.177 & 0.177 & 0.177 & 0.177 & 0.177 \\
         \midrule
-        \multirow{3}{*}{NaiveMVG} & Error Rate & 9.7 & 9.32 & 9.3 & 9.02 & 8.58 & 8.6 \\
-                                  & DCF & 0.195 & 0.187 & 0.186 & 0.181 & 0.172 & 0.172 \\
-                                  & Min DCF & 0.177 & 0.171 & 0.162 & 0.159 & 0.154 & 0.154 \\
+        \multirow{3}{*}{NaiveMVG} & Error & 9.7\% & 9.32\% & 9.3\% & 9.02\% & 8.58\% & 8.6\% \\
+                                  & DCF & 0.194 & 0.186 & 0.186 & 0.18 & 0.172 & 0.172 \\
+                                  & Min DCF & 0.179 & 0.174 & 0.166 & 0.162 & 0.158 & 0.158 \\
         \bottomrule
     \end{tabularx}
     \caption{Performance metrics for various MVG models with PCA as a preprocessing technique.}
     \label{tab:mvg_performance_pca}
 \end{table}
 
+
 The results confirm the hypothesis done in Dimensionality Reduction section. The performance of the classifier is not improved by using PCA as a preprocessing technique due to the lostness of the information. Indeed the best results are obtained with higher number of principal components. Tied MVG model is the only one that performs the same with and without PCA, this is due to PCA that provides features with similar variances.
 
-\subsection{Evaluation Metrics}
-Explain the metrics used to evaluate the performance of your models.
+\section{Lab 7: Model Evaluation}
+\label{sec:model_evaluation}
+The project proposes various metrics and tools to evaluate the performance of the models. The Detection Cost Function (DCF) is a metric that combines the error rate and the cost of false alarms and misses. The Minimum DCF is the DCF value at the optimal threshold. 
 
-\section{Experiments}
-\label{sec:experiments}
-Describe the experiments conducted to validate your models. Include details such as experimental setup, datasets used, and any specific configurations.
+\subsection{Different Application}
+In this section the project investigates the performance of the models in different application setups where the prior, the cost of false positives and the cost of false negatives are different. Specifically:
+\begin{itemize}
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.5, 1, 1)
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.1, 1, 1)
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.9, 1, 1)
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.5, 1, 9)
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.5, 9, 1)
+\end{itemize}
+The image \ref{fig:confusion_matrix} shows the confusion matrix for the different application setups for the MVG model. 
 
-\section{Results}
-\label{sec:results}
-Present the results of your experiments. Use tables, figures, and charts to illustrate the performance of your models.
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.18\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/confusion_matrix_5_1_1.png}
+        \caption{(0.5, 1, 1).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.18\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/confusion_matrix_1_1_1.png}
+        \caption{(0.1, 1, 1).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.18\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/confusion_matrix_9_1_1.png}
+        \caption{(0.9, 1, 1).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.18\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/confusion_matrix_5_1_9.png}
+        \caption{(0.5, 1, 9).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.18\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/confusion_matrix_5_9_1.png}
+        \caption{(0.5, 9, 1).}
+    \end{subfigure}
+    \caption{The figure shows the confusion matrix for the different application setups for the MVG model.}
+    \label{fig:confusion_matrix}
+\end{figure}
+
+The confusion matrixes emphasize how the model choices depend on the prior and the cost of false positives and false negatives. For example, in the case (0.1, 1, 1) the model is biased towards the negative class, so the false negatives are very low. Instead, in the case (0.9, 1, 1) the model is biased towards the positive class, so the false positives are very low.
+
+\subsection{Application Evaluation}
+The project evaluates the performance of the models in the different application setups:
+\begin{itemize}
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.5, 1, 1)
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.1, 1, 1)
+    \item ($\pi_{\text{T}}, C_{\text{FP}}, C_{\text{FN}}$) = (0.9, 1, 1)
+\end{itemize}
+The results for (0.5, 1, 1) are already presented in Table \ref{tab:mvg_performance} and Table \ref{tab:mvg_performance_pca}. The results for the other two setups are shown in Table \ref{tab:mvg_performance_1_1_1}. and Table \ref{tab:mvg_performance_9_1_1}.
 
 \begin{table}[ht]
     \centering
-    \begin{tabular}{|c|c|c|}
-        \hline
-        Model & Accuracy & F1 Score \\
-        \hline
-        Model 1 & 0.90 & 0.88 \\
-        Model 2 & 0.85 & 0.84 \\
-        Model 3 & 0.92 & 0.90 \\
-        \hline
-    \end{tabular}
-    \caption{Model performance comparison}
-    \label{tab:results}
+    \begin{tabularx}{\textwidth}{ll*{7}{X}}
+        \toprule
+        \textbf{Model} & \textbf{Metrics} & \textbf{None} & \textbf{1 PC} & \textbf{2 PC} & \textbf{3 PC} & \textbf{4 PC} & \textbf{5 PC} & \textbf{6 PC} \\
+        \midrule
+        \multirow{3}{*}{MVG} & Error & 13.68\% & 17.77\% & 16.82\% & 16.12\% & 15.15\% & 13.72\% & 13.68\% \\
+                              & DCF & 0.37 & 0.481 & 0.457 & 0.433 & 0.419 & 0.378 & 0.37 \\
+                              & Min DCF & 0.308 & 0.413 & 0.409 & 0.381 & 0.355 & 0.312 & 0.308 \\
+        \midrule
+        \multirow{3}{*}{TiedMVG} & Error & 17.42\% & 17.85\% & 17.55\% & 17.5\% & 17.4\% & 17.42\% & 17.42\% \\
+                                 & DCF & 0.471 & 0.483 & 0.474 & 0.471 & 0.472 & 0.475 & 0.471 \\
+                                 & Min DCF & 0.408 & 0.413 & 0.408 & 0.402 & 0.408 & 0.409 & 0.408 \\
+        \midrule
+        \multirow{3}{*}{NaiveMVG} & Error & 13.97\% & 17.77\% & 16.98\% & 16.3\% & 15.9\% & 15.42\% & 15.38\% \\
+                                  & DCF & 0.373 & 0.481 & 0.466 & 0.439 & 0.431 & 0.41 & 0.409 \\
+                                  & Min DCF & 0.31 & 0.413 & 0.41 & 0.393 & 0.369 & 0.363 & 0.362 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models with (0.1, 1, 1) application setup.}
+    \label{tab:mvg_performance_1_1_1}
 \end{table}
 
-\section{Discussion}
-\label{sec:discussion}
-Interpret the results. Discuss any patterns, insights, or anomalies observed. Compare the performance of different models and explain any differences.
+\begin{table}[ht]
+    \centering
+    \begin{tabularx}{\textwidth}{ll*{7}{X}}
+        \toprule
+        \textbf{Model} & \textbf{Metrics} & \textbf{None} & \textbf{1 PC} & \textbf{2 PC} & \textbf{3 PC} & \textbf{4 PC} & \textbf{5 PC} & \textbf{6 PC} \\
+        \midrule
+        \multirow{3}{*}{MVG} & Error & 14.05\% & 17.6\% & 16.25\% & 15.8\% & 14.87\% & 14.03\% & 14.05\% \\
+                              & DCF & 0.367 & 0.464 & 0.45 & 0.439 & 0.399 & 0.364 & 0.367 \\
+                              & Min DCF & 0.319 & 0.426 & 0.404 & 0.381 & 0.366 & 0.323 & 0.319 \\
+        \midrule
+        \multirow{3}{*}{TiedMVG} & Error & 17.05\% & 17.5\% & 17.4\% & 17.2\% & 17.13\% & 17.03\% & 17.05\% \\
+                                 & DCF & 0.46 & 0.467 & 0.468 & 0.461 & 0.463 & 0.458 & 0.46 \\
+                                 & Min DCF & 0.423 & 0.426 & 0.426 & 0.417 & 0.423 & 0.425 & 0.423 \\
+        \midrule
+        \multirow{3}{*}{NaiveMVG} & Error & 14.15\% & 17.6\% & 16.47\% & 16.05\% & 15.9\% & 15.57\% & 15.57\% \\
+                                  & DCF & 0.364 & 0.464 & 0.451 & 0.439 & 0.433 & 0.411 & 0.411 \\
+                                  & Min DCF & 0.32 & 0.426 & 0.403 & 0.397 & 0.384 & 0.359 & 0.36 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for various MVG models with (0.9, 1, 1) application setup.}
+    \label{tab:mvg_performance_9_1_1}
+\end{table}
 
-\section{Conclusion}
-\label{sec:conclusion}
-Summarize the findings of your project. Discuss the implications of your results, any limitations of your study, and possible future work.
+The results show that the performance of the models is strongly affected by the application setup and all the models suffer of big miscalibration error. Over all setups MVG model with full covariance matrix performs better than the others. As can be seen from min DCF values, all models can improve their performance by changing the threshold, despite they will never reach the value of (0.5, 1, 1) setup. The only setup well calibrated is (0.5, 1, 1) because the dataset is almost balanced according to the prior.
+
+\subsection{Bayes Error Plot}
+The project proposes a Bayes error plot to visualize the performance of the best MVG models: with PCA 6 for (0.1, 1, 1) application setup. The plot in Figure \ref{fig:bayes_error_mvg} compare the actual DCF and the min DCF for different application priors, understanding how well the model behaves in different scenarios.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/bayes_error_mvg.png}
+        \caption{MVG model.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/bayes_error_tiedmvg.png}
+        \caption{TiedMVG model.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/bayes_error_naivemvg.png}
+        \caption{NaiveMVG model.}
+    \end{subfigure}
+    \caption{The figure shows the Bayes error plot for the MVG models with PCA 6 for (0.1, 1, 1) application setup.}
+    \label{fig:bayes_error_mvg}
+\end{figure}
+
+The Bayes error plot confirm the previous hypothesis on miscalibrated models. In fact, the actual DCF is often far from the min DCF and only in few cases the values are close to each other. 
+
+\section{Lab 8: Logistic Regression}
+\label{sec:logistic_regression}
+
+\subsection{regularization}
+The project firstly investigates the performance of Logistic Regression (LR) model as it varies the regularization parameter $\lambda$. The experiments are conducted with k-fold cross-validation with k equal to 10. The Figure \ref{fig:lr_lambda} shows DCF and min DCF for different values of $\lambda$.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_lambda.png}
+        \caption{All dataset}
+        \label{fig:lr_lambda}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_lambda_50.png}
+        \caption{$\frac{1}{50}$ dataset}
+        \label{fig:lr_lambda_50}
+    \end{subfigure}
+    \caption{The figure shows the performance of LR models with different $\lambda$.}
+\end{figure}
+
+Since we have a large number of samples, regularization seems ineffective, and actually degrades actual DCF since the regularized models tend to lose the probabilistic interpretation of the scores. To better understand the role of regularization, the project analyses the results that we would obtain if we had fewer training samples. So, it repeats the prebvious analysis, but keep only 1 out of 50 model training sample and the results are shown in Figure \ref{fig:lr_lambda_50}.
+
+\section{Lab 9: Support Vector Machines}
+\label{sec:svm}
+
 
 \end{document}

@@ -33,8 +33,6 @@ class SVM:
         data = self.__regularization__(data)
 
         min_params, min_function, info = sp.optimize.fmin_l_bfgs_b(self.__obj_function__, params, args=(data, label), bounds=bounds, factr=1.0)
-        print(f'Min function: {min_function}')
-        print(f'Fun calls: ', info['funcalls'])
 
         self.alpha = min_params
         self.data_train = data

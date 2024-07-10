@@ -1,4 +1,4 @@
-from utils.data import load_data, shuffle_data, k_data, k_data_calibration
+from utils.data import load_data, shuffle_data, k_data, k_data_calibration, split_db_2to1
 from utils.numpy_utils import vcol, vrow
 from models.PCA import PCA
 from models.LDA import LDA
@@ -11,6 +11,7 @@ import utils.plot as plt
 
 import numpy
 import tqdm
+import sklearn.datasets
 
 def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=False, leave_one_out=False):
     error = 0
@@ -22,6 +23,7 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
 
     for i in tqdm.tqdm(range(k), desc='K-Fold'):
         (data_train, label_train), (data_test, label_test) = k_data(data, label, i, k)
+        # data_train, label_train = data_train[:, ::50], label_train[::50]
 
         if dr is not None:
             dr.fit(data_train)
@@ -29,7 +31,7 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
             # plt.hist(data_train, label_train, show=True)
             data_test = dr.transform(data_test)
 
-        model.fit(data_train, label_train)
+        model.fit(data_train, label_train) if model.__class__.__name__ != 'LR' else model.fit(data_train, label_train, prior_true)
         # plt.hist(model.transform(data_train), label_train, show=True)
         predicted_label = model.predict_binary(data_test, prior_true, cost_fp, cost_fn)
 
@@ -45,31 +47,49 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
             elif model.__class__.__name__ == 'GMM' or model.__class__.__name__ == 'DiagonalGMM' or model.__class__.__name__ == 'TiedGMM':
                 plt.gmm_hist(data_train, label_train, model.means, model.covariances, model.weights)
             # plt.ROC_curve(label_test, model.score(data_test))
-            # plt.bayes_error(label_test, model.score(data_test), 2.5, cost_fp, cost_fn)
+            plt.bayes_error(label_test, model.score(data_test), 2.5, cost_fp, cost_fn)
 
     error /= k
     DCF /= k
     min_DCF /= k
 
+    # plt.confusion_matrix(label_test, predicted_label)
+
     print(f'Error rate: {round(error*10000)/100} %')
-    print(f'DCF: {round(DCF*1000)/1000}')
-    print(f'Min DCF: {round(min_DCF*1000)/1000}')
+    print(f'DCF: {round(DCF*1000)/1000}') if DCF != np.inf else print(f'DCF: {DCF}')
+    print(f'Min DCF: {round(min_DCF*1000)/1000}') if min_DCF != np.inf else print(f'Min DCF: {min_DCF}')
+
+    return error, DCF, min_DCF
 
 if __name__ == "__main__":
+
     data, label = load_data("data/trainData.txt")
     data, label = shuffle_data(data, label)
 
-    DRs = [PCA(i) for i in range(1, data.shape[0] + 1)]
+    DRs = [None] # + [PCA(i) for i in range(1, data.shape[0] + 1)]
+
+    lambdas = numpy.logspace(-4, 2, 13)
+    C = numpy.logspace(-5, 0, 11)
 
     k = 10
-    prior_true, cost_fp, cost_fn = 0.5, 1, 1
-    models = [MVG(), TiedMVG(), NaiveMVG()]
+    prior_true, cost_fp, cost_fn = 0.1, 1, 1
+    models = [SVM(C=c) for c in C] 
     plot = False
+    errors, DCFs, min_DCFs = [], [], []
 
     for dr in DRs:
         for model in models:
             print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
-            k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
+            if model.__class__.__name__ == 'LR':
+                print(f'Lambda: {model.hyper_params["l"]}')
+            if model.__class__.__name__ == 'SVM':
+                print(f'C: {model.hyper_params["C"]}')
+            error, DCF, min_DCF = k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
+            errors.append(error)
+            DCFs.append(DCF)
+            min_DCFs.append(min_DCF)
+    
+    plt.hyper_params(C, DCFs, min_DCFs, name='C')
 
 
 

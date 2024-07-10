@@ -39,8 +39,9 @@ class LR:
 
         return log_likelihood_ratio
 
-    def predict_binary(self, data, prior_true=0.5, cost_fp=1, cost_fn=1):
+    def predict_binary(self, data, prior_true=None, cost_fp=1, cost_fn=1):
         score = self.score(data)
+        prior_true = self.empirical_prior_true if prior_true is None else prior_true
         threshold = np.log(((1 - prior_true) * cost_fp)) - np.log((prior_true * cost_fn))
 
         return score > threshold

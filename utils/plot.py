@@ -90,15 +90,15 @@ def pearson_correlation(data, show=SHOW):
 def confusion_matrix(label, predicted_label, show=SHOW):
     conf_matrix = eval.confusion_matrix(label, predicted_label)
 
-    fig, ax = plt.subplots(figsize=(7.5, 7.5))
-    ax.matshow(conf_matrix, cmap='coolwarm')
+    fig, ax = plt.subplots(figsize=(1.5, 1.5))
+    ax.matshow(conf_matrix, cmap='Blues', alpha=0.3)
 
     for i in range(conf_matrix.shape[0]):
         for j in range(conf_matrix.shape[1]):
-            ax.text(j, i, f'{conf_matrix[i, j]}', ha='center', va='center', color='white')
+            ax.text(j, i, f'{conf_matrix[i, j]}', ha='center', va='center', color='black')
         
 
-    plt.xlabel('Predicted label', bbox_inches='tight')
+    plt.xlabel('Predicted label')
     plt.ylabel('True label')
     
     if show:
@@ -139,6 +139,20 @@ def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
         plt.show()
     else:
         plt.savefig('report/images/bayes_error.png', bbox_inches='tight')
+        plt.close()
+
+def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params'):
+    # plt.plot(lamda_values, DCF_values, label='DCF')
+    plt.plot(lamda_values, min_DCF_values, label='Min DCF')
+    plt.xlabel(name)
+    plt.ylabel('DCF value')
+    plt.xscale('log', base=10)
+    plt.legend()
+
+    if show:
+        plt.show()
+    else:
+        plt.savefig(f'report/images/{name}.png', bbox_inches='tight')
         plt.close()
 
 def gmm_hist(data, label, means, covariances, weights, show=SHOW):

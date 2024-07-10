@@ -6,11 +6,11 @@ def error_rate(label, predicted_label):
 def confusion_matrix(label, predicted_label):
     num_labels = len(np.unique(label))
 
-    matrix = np.zeros((num_labels, num_labels))
+    matrix = np.zeros((num_labels, num_labels)).astype(int)
 
     for i in range(num_labels):
         for j in range(num_labels):
-            matrix[i, j] = ((predicted_label == i) & (label == j)).sum()
+            matrix[i, j] = ((label == i) & (predicted_label == j)).sum()
 
     return matrix
 
