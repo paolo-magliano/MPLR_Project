@@ -3,7 +3,7 @@ from utils.numpy_utils import vcol, vrow
 from models.PCA import PCA
 from models.LDA import LDA
 from models.MVG import MVG, TiedMVG, NaiveMVG, TiedNaiveMVG
-from models.LR import LR
+from models.LR import LR, QuadraticLR
 from models.SVM import SVM, PoliSVM, RBFSVM
 from models.GMM import GMM, DiagonalGMM, TiedGMM
 from utils.evaluation import *
@@ -23,7 +23,11 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
 
     for i in tqdm.tqdm(range(k), desc='K-Fold'):
         (data_train, label_train), (data_test, label_test) = k_data(data, label, i, k)
-        # data_train, label_train = data_train[:, ::50], label_train[::50]
+        # data_train, label_train = data_train[:, ::100], label_train[::100]
+
+        data_train_mean = data_train.mean(axis=1).reshape(-1, 1)
+        data_train = data_train - data_train_mean
+        data_test = data_test - data_train_mean
 
         if dr is not None:
             dr.fit(data_train)
@@ -31,7 +35,7 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
             # plt.hist(data_train, label_train, show=True)
             data_test = dr.transform(data_test)
 
-        model.fit(data_train, label_train) if model.__class__.__name__ != 'LR' else model.fit(data_train, label_train, prior_true)
+        model.fit(data_train, label_train) # if model.__class__.__name__ != 'LR' else model.fit(data_train, label_train, prior_true)
         # plt.hist(model.transform(data_train), label_train, show=True)
         predicted_label = model.predict_binary(data_test, prior_true, cost_fp, cost_fn)
 
@@ -68,12 +72,12 @@ if __name__ == "__main__":
 
     DRs = [None] # + [PCA(i) for i in range(1, data.shape[0] + 1)]
 
-    lambdas = numpy.logspace(-4, 2, 13)
-    C = numpy.logspace(-5, 0, 11)
+    #lambdas = numpy.logspace(-5, -1, 21)
+    Cs = numpy.logspace(-4, 0, 9)
 
-    k = 10
+    k = 3
     prior_true, cost_fp, cost_fn = 0.1, 1, 1
-    models = [SVM(C=c) for c in C] 
+    models = [SVM(C=C) for C in Cs]
     plot = False
     errors, DCFs, min_DCFs = [], [], []
 
@@ -89,7 +93,7 @@ if __name__ == "__main__":
             DCFs.append(DCF)
             min_DCFs.append(min_DCF)
     
-    plt.hyper_params(C, DCFs, min_DCFs, name='C')
+    plt.hyper_params(Cs, DCFs, min_DCFs, name='C')
 
 
 

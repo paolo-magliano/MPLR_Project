@@ -428,14 +428,64 @@ The project firstly investigates the performance of Logistic Regression (LR) mod
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{images/lr_lambda_50.png}
-        \caption{$\frac{1}{50}$ dataset}
-        \label{fig:lr_lambda_50}
+        \includegraphics[width=\textwidth]{images/lr_lambda_100.png}
+        \caption{$\frac{1}{100}$ dataset}
+        \label{fig:lr_lambda_100}
     \end{subfigure}
     \caption{The figure shows the performance of LR models with different $\lambda$.}
 \end{figure}
 
-Since we have a large number of samples, regularization seems ineffective, and actually degrades actual DCF since the regularized models tend to lose the probabilistic interpretation of the scores. To better understand the role of regularization, the project analyses the results that we would obtain if we had fewer training samples. So, it repeats the prebvious analysis, but keep only 1 out of 50 model training sample and the results are shown in Figure \ref{fig:lr_lambda_50}.
+Since we have a large number of samples, regularization seems ineffective, and actually degrades actual DCF since the regularized models tend to lose the probabilistic interpretation of the scores. To better understand the role of regularization, the project analyses the results that we would obtain if we had fewer training samples. So, it repeats the previous analysis, but keep only 1 out of 100 model training sample and the results are shown in Figure \ref{fig:lr_lambda_100}.
+
+The results show that regularization is useful when the number of samples is small. In fact, there is a range of values where the actual DCF decreases proportionally with increasing values of $\lambda$. In both cases, there is point (around 0.01) where higher value of $\lambda$ degrades drastically the performance of the model because it underfits too much the data. But before this point, the regularization is useful to avoid overfitting, in particular when the number of samples is small.
+
+Further analysis are done using prior-weighted models to understand the difference respect to the standard one. The results are shown in Figure \ref{fig:lr_lambda_prior} and Figure \ref{fig:lr_lambda_100_prior}.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_lambda_prior.png}
+        \caption{All dataset}
+        \label{fig:lr_lambda_prior}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_lambda_100_prior.png}
+        \caption{$\frac{1}{100}$ dataset}
+        \label{fig:lr_lambda_100_prior}
+    \end{subfigure}
+    \caption{The figure shows the performance of LR models with prior-weighted models.}
+\end{figure}
+
+The new graphs show that same behavior of the previous ones. The regularization term is useful only when the number of samples is small. In general, the performance of the prior-weighted models is the same as the standard ones. This highlight the ability of logistic regression to handle different application setups.
+
+\subsection{Expanded Feature Space}
+The project investigates the performance of LR model as it varies the number of features used. The new features space is obtained by implementing polynomial expansion of the original features. The Figure \ref{fig:lr_lambda_quadratic} shows DCF and min DCF for different values of $\lambda$.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/lr_lambda_quadratic.png}
+    \caption{The figure shows the performance of LR models with expanded feature space.}
+    \label{fig:lr_lambda_quadratic}
+\end{figure}
+
+Both DCF and min DCF decrease quite a lot thanks to the new features. The regularization term has the same effect as before.
+
+\subsection{Affine Transformation}
+The project studies the performance of LR model with affine transformation of the features. In particular, the new features are centered versions of the original features. The Figure \ref{fig:lr_lambda_centered} shows the results.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/lr_lambda_centered.png}
+    \caption{The figure shows the performance of LR models with centered features.}
+    \label{fig:lr_lambda_centered}
+\end{figure}
+
+The results show that the performance of the model is not affected particularly by the centered features.
+
+Finally, after exploring different possible configuration, the best model is the one with the expanded feature space and $\lambda = 0.04$ with min DCF equal to 0.269. LR models compared with MVG models perform poorly in this dataset. This is due to the fact that the dataset can't be linearly separable easily and the MVG models works well with data distribution approximable by a Gaussian density function.
 
 \section{Lab 9: Support Vector Machines}
 \label{sec:svm}

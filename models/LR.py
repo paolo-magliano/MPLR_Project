@@ -1,6 +1,8 @@
 import numpy as np
 import scipy as sp
 
+from utils.numpy_utils import vcol
+
 class LR:
     def __init__(self, l=0.001, regularization=True):
         self.hyper_params = {
@@ -45,3 +47,20 @@ class LR:
         threshold = np.log(((1 - prior_true) * cost_fp)) - np.log((prior_true * cost_fn))
 
         return score > threshold
+
+
+class QuadraticLR(LR):
+    def __init__(self, l=0.001, regularization=True):
+        super().__init__(l, regularization)
+
+    def __expand_data__(self, data):
+        return np.vstack([np.einsum('ik,jk->ijk', data, data).reshape(-1, data.shape[1]), data])
+
+    def fit(self, data, label, prior_true=None):
+        data = self.__expand_data__(data)
+        super().fit(data, label, prior_true)
+
+    def score(self, data):
+        data = self.__expand_data__(data)
+        return super().score(data)
+        

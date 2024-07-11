@@ -142,8 +142,8 @@ def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
         plt.close()
 
 def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params'):
-    # plt.plot(lamda_values, DCF_values, label='DCF')
-    plt.plot(lamda_values, min_DCF_values, label='Min DCF')
+    plt.plot(params, DCF_values, label='DCF')
+    plt.plot(params, min_DCF_values, label='Min DCF')
     plt.xlabel(name)
     plt.ylabel('DCF value')
     plt.xscale('log', base=10)
