@@ -141,19 +141,28 @@ def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
         plt.savefig('report/images/bayes_error.png', bbox_inches='tight')
         plt.close()
 
-def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params'):
-    plt.plot(params, DCF_values, label='DCF')
-    plt.plot(params, min_DCF_values, label='Min DCF')
-    plt.xlabel(name)
-    plt.ylabel('DCF value')
-    plt.xscale('log', base=10)
-    plt.legend()
+def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params', lines=None, base=10):
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    if lines is None:
+        ax.plot(params, DCF_values, label='DCF')
+        ax.plot(params, min_DCF_values, label='Min DCF')
+    else:
+        colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+        for i in range(len(lines)):
+            print(f'Lines: {lines}', f'Params: {params.shape}', f'DCF: {DCF_values[i].shape}', f'Min DCF: {min_DCF_values[i].shape}')
+            ax.plot(params, DCF_values[i], label=f'DCF {lines[i]}', color=colors[i])
+            ax.plot(params, min_DCF_values[i], label=f'Min DCF {lines[i]}', linestyle='--', color=colors[i])
+ 
+    ax.set_xlabel(name)
+    ax.set_ylabel('DCF value')
+    ax.set_xscale('log', base=base)
+    ax.legend()
 
     if show:
-        plt.show()
+        fig.show()
     else:
-        plt.savefig(f'report/images/{name}.png', bbox_inches='tight')
-        plt.close()
+        fig.savefig(f'report/images/{name}.png', bbox_inches='tight')
 
 def gmm_hist(data, label, means, covariances, weights, show=SHOW):
     rows = 2 if data.shape[0] % 2 == 0 and data.shape[0] >= 4 else 1
