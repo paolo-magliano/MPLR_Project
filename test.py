@@ -25,9 +25,9 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
         (data_train, label_train), (data_test, label_test) = k_data(data, label, i, k)
         # data_train, label_train = data_train[:, ::100], label_train[::100]
 
-        data_train_mean = data_train.mean(axis=1).reshape(-1, 1)
-        data_train = data_train - data_train_mean
-        data_test = data_test - data_train_mean
+        # data_train_mean = data_train.mean(axis=1).reshape(-1, 1)
+        # data_train = data_train - data_train_mean
+        # data_test = data_test - data_train_mean
 
         if dr is not None:
             dr.fit(data_train)
@@ -49,7 +49,8 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
             if model.__class__.__name__ == 'MVG' or model.__class__.__name__ == 'NaiveMVG' or model.__class__.__name__ == 'TiedMVG':
                 plt.gaussian_hist(data_train, label_train, model.mean, model.covariance)
             elif model.__class__.__name__ == 'GMM' or model.__class__.__name__ == 'DiagonalGMM' or model.__class__.__name__ == 'TiedGMM':
-                plt.gmm_hist(data_train, label_train, model.means, model.covariances, model.weights)
+                # plt.gmm_hist(data_train, label_train, model.means, model.covariances, model.weights)
+                pass
             # plt.ROC_curve(label_test, model.score(data_test))
             plt.bayes_error(label_test, model.score(data_test), 2.5, cost_fp, cost_fn)
 
@@ -72,32 +73,39 @@ if __name__ == "__main__":
 
     DRs = [None] # + [PCA(i) for i in range(1, data.shape[0] + 1)]
 
-    #lambdas = numpy.logspace(-5, -1, 21)
-    Cs = numpy.logspace(-4, 0, 9)
+    lambdas = numpy.logspace(-5, -1, 21)
+    # Cs = numpy.logspace(-4, 0, 9)
+
+    # [1, 2, 4, 8, 16, 32]
+    ms = numpy.logspace(0, 5, 6, base=2).astype(int)
 
     k = 3
     prior_true, cost_fp, cost_fn = 0.1, 1, 1
-    models = [SVM(C=C) for C in Cs]
-    plot = False
+    models = [QuadraticLR(0.0015)]
+    plot = True
     errors, DCFs, min_DCFs = [], [], []
 
     for dr in DRs:
         for model in models:
             print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
-            if model.__class__.__name__ == 'LR':
+            if model.__class__.__name__ == 'LR' or model.__class__.__name__ == 'QuadraticLR':
                 print(f'Lambda: {model.hyper_params["l"]}')
-            if model.__class__.__name__ == 'SVM':
+            if model.__class__.__name__ == 'SVM' or model.__class__.__name__ == 'PoliSVM' or model.__class__.__name__ == 'RBFSVM':
                 print(f'C: {model.hyper_params["C"]}')
+            if model.__class__.__name__ == 'GMM' or model.__class__.__name__ == 'DiagonalGMM' or model.__class__.__name__ == 'TiedGMM':
+                print(f'M: {model.hyper_params["m"]}')
             error, DCF, min_DCF = k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
             errors.append(error)
             DCFs.append(DCF)
             min_DCFs.append(min_DCF)
     
-    plt.hyper_params(Cs, DCFs, min_DCFs, name='C')
+    plt.hyper_params(lambdas, DCFs, min_DCFs, name='Lambda', base=10)
+    print(f'Best model parameters: {lambdas[np.argmin(min_DCFs)]} with Min DCF: {min(min_DCFs)}')
 
 
 
-
-
+# C: 0.01
+# DCF: 0.992
+# Min DCF: 0.459
 
 

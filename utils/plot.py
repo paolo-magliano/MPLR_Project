@@ -141,12 +141,12 @@ def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
         plt.savefig('report/images/bayes_error.png', bbox_inches='tight')
         plt.close()
 
-def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params'):
+def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params', base=10):
     plt.plot(params, DCF_values, label='DCF')
     plt.plot(params, min_DCF_values, label='Min DCF')
     plt.xlabel(name)
     plt.ylabel('DCF value')
-    plt.xscale('log', base=10)
+    plt.xscale('log', base=base)
     plt.legend()
 
     if show:
