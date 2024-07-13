@@ -11,7 +11,6 @@ import utils.plot as plt
 
 import numpy
 import tqdm
-import sklearn.datasets
 
 def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=False, leave_one_out=False):
     error = 0
@@ -23,7 +22,7 @@ def k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr=None, plot=Fa
 
     for i in tqdm.tqdm(range(k), desc='K-Fold'):
         (data_train, label_train), (data_test, label_test) = k_data(data, label, i, k)
-        # data_train, label_train = data_train[:, ::100], label_train[::100]
+        # data_train, label_train = data_train[:, ::50], label_train[::50]
 
         # data_train_mean = data_train.mean(axis=1).reshape(-1, 1)
         # data_train = data_train - data_train_mean
@@ -73,39 +72,39 @@ if __name__ == "__main__":
 
     DRs = [None] # + [PCA(i) for i in range(1, data.shape[0] + 1)]
 
-    lambdas = numpy.logspace(-5, -1, 21)
-    # Cs = numpy.logspace(-4, 0, 9)
-
-    # [1, 2, 4, 8, 16, 32]
-    ms = numpy.logspace(0, 5, 6, base=2).astype(int)
+    # lambdas = numpy.logspace(-5, -1, 21)
+    Cs = numpy.logspace(-3, 0, 7)
+    sigmas = [1e-4, 1e-3, 1e-2, 1e-1]
 
     k = 3
     prior_true, cost_fp, cost_fn = 0.1, 1, 1
-    models = [QuadraticLR(0.0015)]
-    plot = True
-    errors, DCFs, min_DCFs = [], [], []
+    0# models = [RBFSVM(C=C, sigma=sigma) for C in Cs] 
+    plot = False
+    global_errors, global_DCFs, global_min_DCFs = [], [], []
 
     for dr in DRs:
-        for model in models:
-            print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
-            if model.__class__.__name__ == 'LR' or model.__class__.__name__ == 'QuadraticLR':
-                print(f'Lambda: {model.hyper_params["l"]}')
-            if model.__class__.__name__ == 'SVM' or model.__class__.__name__ == 'PoliSVM' or model.__class__.__name__ == 'RBFSVM':
-                print(f'C: {model.hyper_params["C"]}')
-            if model.__class__.__name__ == 'GMM' or model.__class__.__name__ == 'DiagonalGMM' or model.__class__.__name__ == 'TiedGMM':
-                print(f'M: {model.hyper_params["m"]}')
-            error, DCF, min_DCF = k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
-            errors.append(error)
-            DCFs.append(DCF)
-            min_DCFs.append(min_DCF)
+        for sigma in sigmas:
+            models = [RBFSVM(C=C, sigma=sigma, K=1) for C in Cs]
+            errors, DCFs, min_DCFs = [], [], [] 
+            for model in models:
+                print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
+                if model.__class__.__name__ == 'LR':
+                    print(f'Lambda: {model.hyper_params["l"]}')
+                if model.__class__.__name__ == 'SVM' or model.__class__.__name__ == 'PoliSVM' or model.__class__.__name__ == 'RBFSVM':
+                    print(f'C: {model.hyper_params["C"]}')
+                    if model.__class__.__name__ == 'RBFSVM':
+                        print(f'Sigma: {model.hyper_params["sigma"]}')
+                error, DCF, min_DCF = k_fold(data, label, model, k, prior_true, cost_fp, cost_fn, dr, plot)
+                errors.append(error)
+                DCFs.append(DCF)
+                min_DCFs.append(min_DCF)
+            global_errors.append(np.array(errors))
+            global_DCFs.append(np.array(DCFs))
+            global_min_DCFs.append(np.array(min_DCFs))
+    print(f'Shape: {np.array(global_DCFs).shape}')
+    plt.hyper_params(Cs, np.array(global_DCFs), np.array(global_min_DCFs), name='C', lines=sigmas)
+
+    params = np.array([(C, sigma) for C in Cs for sigma in sigmas])
     
-    plt.hyper_params(lambdas, DCFs, min_DCFs, name='Lambda', base=10)
-    print(f'Best model parameters: {lambdas[np.argmin(min_DCFs)]} with Min DCF: {min(min_DCFs)}')
-
-
-
-# C: 0.01
-# DCF: 0.992
-# Min DCF: 0.459
-
+    print(f'Best model params (C, sigma): {params[np.argmin(np.array(global_min_DCFs))]} with Min DCF: {np.min(np.array(global_min_DCFs))}')
 
