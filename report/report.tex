@@ -384,38 +384,41 @@ The results for (0.5, 1, 1) are already presented in Table \ref{tab:mvg_performa
 The results show that the performance of the models is strongly affected by the application setup and all the models suffer of big miscalibration error. Over all setups MVG model with full covariance matrix performs better than the others. As can be seen from min DCF values, all models can improve their performance by changing the threshold, despite they will never reach the value of (0.5, 1, 1) setup. The only setup well calibrated is (0.5, 1, 1) because the dataset is almost balanced according to the prior.
 
 \subsection{Bayes Error Plot}
-The project proposes a Bayes error plot to visualize the performance of the best MVG models: with PCA 6 for (0.1, 1, 1) application setup. The plot in Figure \ref{fig:bayes_error_mvg} compare the actual DCF and the min DCF for different application priors, understanding how well the model behaves in different scenarios.
+The project proposes a Bayes error plot to visualize the performance of the best MVG models: with PCA 6 for (0.1, 1, 1) application setup. The plot in Figure \ref{fig:mvg_bayes_error} compare the actual DCF and the min DCF for different application priors, understanding how well the model behaves in different scenarios.
 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{images/bayes_error_mvg.png}
+        \includegraphics[width=\textwidth]{images/mvg_bayes_error.png}
         \caption{MVG model.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{images/bayes_error_tiedmvg.png}
+        \includegraphics[width=\textwidth]{images/mvg_bayes_error_tied.png}
         \caption{TiedMVG model.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{images/bayes_error_naivemvg.png}
+        \includegraphics[width=\textwidth]{images/mvg_bayes_error_naive.png}
         \caption{NaiveMVG model.}
     \end{subfigure}
     \caption{The figure shows the Bayes error plot for the MVG models with PCA 6 for (0.1, 1, 1) application setup.}
-    \label{fig:bayes_error_mvg}
+    \label{fig:mvg_bayes_error}
 \end{figure}
 
 The Bayes error plot confirm the previous hypothesis on miscalibrated models. In fact, the actual DCF is often far from the min DCF and only in few cases the values are close to each other. 
 
+At the end of the experiments the best model for application (0.1, 1, 1) is the MVG model with PCA 6 and min DCF equal to 0.308. The actual model is still a bit miscalibrated but not too much.
+
 \section{Lab 8: Logistic Regression}
 \label{sec:logistic_regression}
+Logistic Regression (LR) is a classification model that estimates the probability of a binary outcome. The project explore the performance of both linear and quadratic LR models. The experiments are conducted with k-fold cross-validation with k equal to 10. 
 
-\subsection{regularization}
-The project firstly investigates the performance of Logistic Regression (LR) model as it varies the regularization parameter $\lambda$. The experiments are conducted with k-fold cross-validation with k equal to 10. The Figure \ref{fig:lr_lambda} shows DCF and min DCF for different values of $\lambda$.
+\subsection{Regularization}
+The project firstly investigates the performance of Logistic Regression (LR) model as it varies the regularization parameter $\lambda$. The Figure \ref{fig:lr_lambda} shows DCF and min DCF for different values of $\lambda$ evaluated with application setup (0.1, 1, 1).
 
 \begin{figure}[ht]
     \centering
@@ -466,9 +469,19 @@ The project investigates the performance of LR model as it varies the number of 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\textwidth]{images/lr_lambda_quadratic.png}
-    \caption{The figure shows the performance of LR models with expanded feature space.}
-    \label{fig:lr_lambda_quadratic}
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_lambda_quadratic.png}
+        \caption{The figure shows the performance of LR models with expanded feature space.}
+        \label{fig:lr_lambda_quadratic}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_lambda_centered.png}
+        \caption{The figure shows the performance of LR models with centered features.}
+        \label{fig:lr_lambda_centered}
+    \end{subfigure}
 \end{figure}
 
 Both DCF and min DCF decrease quite a lot thanks to the new features. The regularization term has the same effect as before.
@@ -476,19 +489,143 @@ Both DCF and min DCF decrease quite a lot thanks to the new features. The regula
 \subsection{Affine Transformation}
 The project studies the performance of LR model with affine transformation of the features. In particular, the new features are centered versions of the original features. The Figure \ref{fig:lr_lambda_centered} shows the results.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\textwidth]{images/lr_lambda_centered.png}
-    \caption{The figure shows the performance of LR models with centered features.}
-    \label{fig:lr_lambda_centered}
-\end{figure}
+The results show that the performance of the model is not affected particularly by the centered features.\\\\
 
-The results show that the performance of the model is not affected particularly by the centered features.
-
-Finally, after exploring different possible configuration, the best model is the one with the expanded feature space and $\lambda = 0.04$ with min DCF equal to 0.269. LR models compared with MVG models perform poorly in this dataset. This is due to the fact that the dataset can't be linearly separable easily and the MVG models works well with data distribution approximable by a Gaussian density function.
+Finally, after exploring different possible configuration, the best model is the one with the expanded feature space and $\lambda = 0.0015$ with min DCF equal to 0.269. LR models compared with MVG models perform better thanks to the expanded feature space that allows to capture the non-linear relationship between the features. This helps a lot explointing last two features that are grouped in clusters, so they are separable only with non-linear functions. Despite this MVG model is really good compared to LR linear model, in fact the min DCF are 0.308 and 0.407 respectively. This is due to the fact that the MVG model works really were when data matches the Gaussian distribution assumption.
 
 \section{Lab 9: Support Vector Machines}
 \label{sec:svm}
+SVM is a powerful classification technique that finds the hyperplane that best separates the classes. The project investigates the performance of SVM model and its extension to non-linear cases. The experiments are conducted with k-fold cross-validation with k equal to 3, because the fitting procedure is very time consuming. The Figure \ref{fig:svm_C} shows the performance of SVM model as it varies the regularization parameter C evaluated with application setup (0.1, 1, 1).
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/svm_C.png}
+        \caption{The figure shows the performance of SVM models with different C.}
+        \label{fig:svm_C}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/svm_C_centered.png}
+        \caption{The figure shows the performance of SVM model with centered dataset.}
+        \label{fig:svm_C_centered}
+    \end{subfigure}
+\end{figure}
+
+The results show that the performance of the model is not affected by the regularization parameter C. DCF and min DCF are almost constant for all values of C. In every case, the actual DCF is pretty higher than min DCF, this means that the model is miscalibrated and it is not robust to application setup different from the empirical prior of the dataset. The linear SVM behaves worse than other linear models, in fact the min DCF is 0.458.
+
+Further analysis are done using centered dataset to understand the difference respect to the standard one. The results shown in Figure \ref{fig:svm_C_centered} confirm the same behavior. There isn't any important difference between the two cases.
+
+\subsection{Non-linear SVM}
+The project considers two non-linear SVM models with polynomial and RBF kernels. The Figure \ref{fig:svm_C_poly} and Figure \ref{fig:svm_C_rbf} show the performance of SVM models with different C and RBF graph shows also different lines, one for each value of $\gamma$.
+
+% \begin{figure}[ht]
+%     \centering
+%     \begin{subfigure}[b]{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{images/svm_C_poly.png}
+%         \caption{The figure shows the performance of SVM models with polynomial kernel.}
+%         \label{fig:svm_C_poly}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[b]{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{images/svm_C_rbf.png}
+%         \caption{The figure shows the performance of SVM models with RBF kernel.}
+%         \label{fig:svm_C_rbf}
+%     \end{subfigure}
+% \end{figure}
+
+\section{Lab 10: Gaussian Mixture Models}
+\label{sec:gmm}
+Finally, as the last model, the project investigates the performance of Gaussian Mixture Models (GMM). The experiments are conducted with k-fold cross-validation with k equal to 10. The Figure \ref{fig:gmm_M} shows the performance of GMM models as it varies the number of components M and the covariance matrix.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/gmm_M.png}
+        \caption{GMM model}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/gmm_M_diagonal.png}
+        \caption{Diagonal GMM model}
+    \end{subfigure}
+    \caption{The figure shows the performance of GMM models with different M and covariance matrix.}
+    \label{fig:gmm_M}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/dataset_gmm.png}
+    \caption{The figure shows the histograms of the dataset and the Gaussian Mixture Model that best fits the data.}
+    \label{fig:dataset_gmm}
+\end{figure}
+
+The results of Tied GMM are not presented as they are bad as always, the assumptions done are not compatible with the dataset. Surprisingly, the Diagonal GMM model performs better than the standard one. The Min DCF is the lowest of the project and it is equal to 0.144 with 8 components. To further analyze the reason behind the Figures \ref{fig:dataset_gmm} and \ref{fig:dataset_gmm_diagonal} compare the distribution of the data with the multimodal Gaussian density function estimated by the models.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/dataset_gmm_diagonal.png}
+    \caption{The figure shows the histograms of the dataset and the Diagonal Gaussian Mixture Model that best fits the data.}
+    \label{fig:dataset_gmm_diagonal}
+\end{figure}
+
+The only significative difference between the two models is on the features 6, where diagonal model presents a unimodal Gaussian density function, while the standard model presents a trimodal one. 
+
+\section{Lab 11: Calibration}
+
+\subsection{Model comparison}
+Before the calibration, the project compares the performance of the best models for each technique. Particularly, they are compared on Bayes Error plot. The Table \ref{tab:models_performance} makes a summary of the performance of the best models seen until now with application setup (0.1, 1, 1) and k-fold with k equal to 3. The Figure \ref{fig:models_bayes_error} shows the actual DCF and min DCF for different application priors.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabularx}{\textwidth}{lXXX}
+        \toprule
+        \textbf{Model} & \textbf{DCF} & \textbf{Min DCF} \\
+        \midrule
+        LR & 0.321 & 0.3 \\
+        SVM & - & - \\
+        GMM & 0.185 & 0.157 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for the best models with application setup (0.1, 1, 1).}
+    \label{tab:models_performance}
+\end{table}
+
+The configuration parameters for each model are:
+\begin{itemize}
+    \item LR: expanded feature space and $\lambda = 0.0015$.
+    \item SVM: Polynomial kernel with degree 4 and c equal to 1.
+    \item GMM: 8 components and full covariance matrix.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/lr_bayes_error.png}
+        \caption{LR.}
+    \end{subfigure}
+    \hfill
+    % \begin{subfigure}[b]{0.3\textwidth}
+    %     \centering
+    %     \includegraphics[width=\textwidth]{images/svm_bayes_error.png}
+    %     \caption{SVM.}
+    % \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/gmm_bayes_error.png}
+        \caption{GMM.}
+    \end{subfigure}
+    \caption{The figure shows the Bayes error plot for the best models with application setup (0.1, 1, 1).}
+    \label{fig:models_bayes_error}
+\end{figure}
 
 
 \end{document}
