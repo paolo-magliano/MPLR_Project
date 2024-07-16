@@ -6,7 +6,7 @@ from utils.numpy_utils import vcol
 def logpdf_GAU_ND(data, mean, covariance):
     centered_data = data - mean
 
-    constant_term = -0.5 * data.shape[0] * np.log(2 * np.pi)
+    constant_term = - 0.5 * data.shape[0] * np.log(2 * np.pi)
     log_determinat = np.linalg.slogdet(covariance)[1]
 
     return constant_term - 0.5 * log_determinat - 0.5 * (centered_data * np.dot(np.linalg.inv(covariance), centered_data)).sum(0)

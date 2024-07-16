@@ -538,7 +538,18 @@ The project considers two non-linear SVM models with polynomial and RBF kernels.
     \end{subfigure}
 \end{figure}
 
-The non-linear kernel versions show dependencies from regularization, because they probably overfit more the data thanks to their complex decision functions and it's hard generalize the data behavior. Both models gives promising results around 0.3 of min DCF. For both the miscalibration error is significative, above all the RBF kernel model shows the highest DCF values.
+The non-linear kernel versions show dependencies from regularization, because they probably overfit more the data thanks to their complex decision functions and it's hard generalize the data behavior. Both models gives promising results around 0.3 of min DCF. For both the miscalibration error is significative, above all the RBF kernel model shows the highest DCF values. Coherently with results of other quadratic decision function models (Quadratic LR and MVG) the performance are drastically better compared to their linear models.
+
+To chose the best SVM classifier possible thw project analyze also the performance of model with polynomial kernel with degree equal to 4. The results are shown in Figure \ref{fig:svm_C_poly_4}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/svm_C_poly_4.png}
+    \caption{The figure shows the performance of SVM models with polynomial kernel with degree 4.}
+    \label{fig:svm_C_poly_4}
+\end{figure}
+
+As expected, it outperforms all other SVM model with min DCF equal to 0.223 for C equal to 0.003. Also there the role of regularization is important and there is the need to find the right balance.
 
 \section{Lab 10: Gaussian Mixture Models}
 \label{sec:gmm}
@@ -579,7 +590,8 @@ The results of Tied GMM are not presented as they are bad as always, the assumpt
 
 The only significative difference between the two models is on the features 6, where diagonal model presents a unimodal Gaussian density function, while the standard model presents a trimodal one. 
 
-\section{Lab 11: Calibration}
+section{Lab 11: Calibration}
+\label{sec:calibration}
 
 \subsection{Model comparison}
 Before the calibration, the project compares the performance of the best models for each technique. Particularly, they are compared on Bayes Error plot. The Table \ref{tab:models_performance} makes a summary of the performance of the best models seen until now with application setup (0.1, 1, 1) and k-fold with k equal to 3. The Figure \ref{fig:models_bayes_error} shows the actual DCF and min DCF for different application priors.
@@ -591,20 +603,13 @@ Before the calibration, the project compares the performance of the best models 
         \textbf{Model} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
         LR & 0.321 & 0.3 \\
-        SVM & - & 0.223 \\
+        SVM & 0.447 & 0.223 \\
         GMM & 0.185 & 0.157 \\
         \bottomrule
     \end{tabularx}
     \caption{Performance metrics for the best models with application setup (0.1, 1, 1).}
     \label{tab:models_performance}
 \end{table}
-
-The configuration parameters for each model are:
-\begin{itemize}
-    \item LR: expanded feature space and $\lambda = 0.0015$.
-    \item SVM: Polynomial kernel with degree 4 and $C = 0.003$.
-    \item GMM: 8 components and full covariance matrix.
-\end{itemize}
 
 \begin{figure}[ht]
     \centering
@@ -614,11 +619,11 @@ The configuration parameters for each model are:
         \caption{LR.}
     \end{subfigure}
     \hfill
-    % \begin{subfigure}[b]{0.3\textwidth}
-    %     \centering
-    %     \includegraphics[width=\textwidth]{images/svm_bayes_error.png}
-    %     \caption{SVM.}
-    % \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/svm_bayes_error.png}
+        \caption{SVM.}
+    \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
@@ -629,5 +634,194 @@ The configuration parameters for each model are:
     \label{fig:models_bayes_error}
 \end{figure}
 
+The configuration parameters for each model are:
+\begin{itemize}
+    \item LR: expanded feature space and $\lambda = 0.0015$.
+    \item SVM: Polynomial kernel with degree 4 and $C = 0.003$.
+    \item GMM: 8 components and full covariance matrix.
+\end{itemize}
+
+They are all extremely good where the application prior matches the empirical prior. LR and GMM are quite calibrated also for application setup (0.1, 1, 1), instead SVM has a big miscalibration error. There can be seen the difference between probabilistic and non probabilistic model. Considering only min DCF the GMM model out performs the other two. Also SVM has good results thanks to its high non linearity. LR model perform worse since is the simpler one.
+
+\subsection{Calibration}
+Each of these three model will be calibrated with not regularized Logistic Regression model as linear mapping for the score values. The calibration model is trained with its calibration data. The experiments are done with k-fold where k is equal to 3. The project investigates how the weighted prior passed to LR calibration model can influences the calibration performance. The Table \ref{tab:calibration_weighted} shows the results. 
+
+\begin{table}
+    \centering
+    \begin{tabularx}{\textwidth}{llXXX}
+        \toprule
+        \textbf{Model} & \textbf{Metrics} & \textbf{0.1 Prior} & \textbf{0.5 Prior} & \textbf{0.9 Prior} \\
+        \midrule
+        \multirow{2}{*}{LR} & DCF & 0.344 & 0.340 & 0.315 \\
+                            & Min DCF & 0.3 & 0.3 & 0.3 \\
+        \midrule
+        \multirow{2}{*}{SVM} & DCF & 0.247 & 0.245 & 0.273 \\
+                             & Min DCF & 0.223 & 0.223 & 0.223 \\
+        \midrule
+        \multirow{2}{*}{GMM} & DCF & 0.185 & 0.185 & 0.185 \\
+                             & Min DCF & 0.157 & 0.157 & 0.157 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for the best models with application setup (0.1, 1, 1) after calibration.}
+    \label{tab:calibration_weighted}
+\end{table}
+
+The results show that the best prior for the calibration model is the one that matches with application prior. Overall also other priors have similar results. The effect of calibration is not significative for both LR and GMM, also for SVM the gains are minimal but it helps a little bit more. In Figure \ref{fig:calibration_weighted} can be seen the Bayes error plot for prior equal to 0.1.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_lr_bayes_error.png}
+        \caption{LR.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_svm_bayes_error.png}
+        \caption{SVM.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_gmm_bayes_error.png}
+        \caption{GMM.}
+    \end{subfigure}
+    \caption{The figure shows the Bayes error plot for the best models with application setup (0.1, 1, 1) after calibration.}
+    \label{fig:calibration_weighted}
+\end{figure}
+
+\subsection{Fusion}
+Before selecting the best model, the project investigates the performance of the fusion of the three models. The fusion is done with a weighted sum of the scores of the three models. The weights are learned with the same calibration model. The Table \ref{tab:fusion} shows the results for all possible combinations only for prior equal to 0.1.
+
+\begin{table}
+    \centering
+    \begin{tabularx}{\textwidth}{lXX}
+        \toprule
+        \textbf{Model combination} & \textbf{DCF} & \textbf{Min DCF} \\
+        \midrule
+        LR + SVM & 0.219 & 0.185 \\
+        LR + GMM & 0.151 & 0.122 \\
+        SVM + GMM & 0.146 & 0.112 \\
+        LR + SVM + GMM & 0.151 & 0.126 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for the fusion of the best models with application setup (0.1, 1, 1).}
+    \label{tab:fusion}
+\end{table}
+
+The project reports also the Bayes error plot for the fusion of the three models. The Figure \ref{fig:fusion_bayes_error} shows the actual DCF and min DCF for different application priors.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_lr_svm_bayes_error.png}
+        \caption{Fusion of LR and SVM.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_lr_gmm_bayes_error.png}
+        \caption{Fusion of LR and GMM.}
+    \end{subfigure}
+    \vfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_svm_gmm_bayes_error.png}
+        \caption{Fusion of SVM and GMM.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/calibration_bayes_error.png}
+        \caption{Fusion of LR, SVM and GMM.}
+    \end{subfigure}
+    \caption{The figure shows the Bayes error plot for the fusion of the best models with application setup (0.1, 1, 1).}
+    \label{fig:fusion_bayes_error}
+\end{figure}
+
+The results are the best until now. The fusion of two models gives even more useful information that provide better separation. Each combination shows better performance that the single models. Also the Min DCF improves and all the scores are decently calibrated. The best model is the fusion of SVM and GMM with actual DCF equal to 0.146 and min DCF equal to 0.112. The fusion of all three models is not better than this one.
+
+\subsection{Evaluation}
+The project evaluates the performance of the best model on the evaluation dataset. The training dataset is used to train the model and to calibrate it. The Figure \ref{fig:evaluation} shows the actual DCF and min DCF for different application priors.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/evaluation.png}
+    \caption{The figure shows the Bayes error plot for the best model on the evaluation dataset.}
+    \label{fig:evaluation}
+\end{figure}
+
+The fusion model obtains actual DCF of 0.191 and a min DCF of 0.185 for application (0.1, 1, 1) and actual DCF of 0.068 and a min DCF of 0.065 for empirical prior. In order to understand if we chose the right model, the project compares the performance of the two singular best models. The Figure \ref{fig:evaluation_comparison} shows the results.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/evaluation_gmm.png}
+        \caption{GMM model.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/evaluation_svm.png}
+        \caption{SVM model.}
+    \end{subfigure}
+    \caption{The figure shows the performance of the singular models on the evaluation dataset.}
+    \label{fig:evaluation_comparison}
+\end{figure}
+
+The results show that the fusion of SVM and GMM is the best model, but also the single GMM provides good results. It archives actual DCF of 0.194 and a min DCF of 0.183 for application (0.1, 1, 1) and actual DCF of 0.071 and a min DCF of 0.069 for empirical prior. In order un understand id the hyperparameters chosen are the best, the project compares the performance of GMM model with diffrent number of components. The results are shown in Figure \ref{fig:evaluation_gmm}.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/evaluation_gmm_2.png}
+        \caption{GMM model with 2 components.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/evaluation_gmm_4.png}
+        \caption{GMM model with 4 components.}
+    \end{subfigure}
+    \vfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/evaluation_gmm_16.png}
+        \caption{GMM model with 16 components.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/evaluation_gmm_32.png}
+        \caption{GMM model with 32 components.}
+    \end{subfigure}
+    \caption{The figure shows the performance of the GMM model with different number of components on the evaluation dataset.}
+    \label{fig:evaluation_gmm}
+\end{figure}
+
+The table \ref{tab:evaluation_gmm} shows the results for the GMM model with different number of components.
+
+\begin{table}
+    \centering
+    \begin{tabularx}{\textwidth}{lXXXX}
+        \toprule
+        \textbf{Model} & \textbf{DCF 0.1} & \textbf{Min DCF 0.1} & \textbf{DCF Emp} & \textbf{Min DCF Emp} \\
+        \midrule
+        GMM 2 & 0.316 & 0.311 & 0.125 & 0.123 \\
+        GMM 4 & 0.179 & 0.171 & 0.077 & 0.073 \\
+        GMM 16 & 0.204 & 0.184 & 0.075 & 0.072 \\
+        GMM 32 & 0.19 & 0.178 & 0.073 & 0.07 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Performance metrics for the GMM model with different number of components on the evaluation dataset.}
+    \label{tab:evaluation_gmm}
+\end{table}
+
+The results show that the best model is the GMM with 8 components. It also well calibrated for both application and evaluation empirical prior. The models with different components have similar performance.
 
 \end{document}
+

@@ -14,14 +14,14 @@ import tqdm
 import itertools
 
 
-def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=False, calibration=False, leave_one_out=False):
+def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=False, calibrations=False, leave_one_out=False, eval_data=None, eval_label=None):
     errors = np.zeros_like(models)
     DCFs = np.zeros_like(models)
     min_DCFs = np.zeros_like(models)
 
-    combinations_index = ([comb for i in range(len(models)) for comb in itertools.combinations(range(len(models)), i + 1)])
+    combinations_index = [comb for i in range(len(models)) for comb in itertools.combinations(range(comb_n), i + 1)]
 
-    if calibration:
+    if calibrations:
         error_cal = np.zeros((len(combinations_index), len(calibrations))) 
         DCF_cal = np.zeros((len(combinations_index), len(calibrations)))
         min_DCF_cal = np.zeros((len(combinations_index), len(calibrations)))
@@ -29,9 +29,15 @@ def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=F
     if leave_one_out:
         k = data.shape[1]
 
-    for i in tqdm.tqdm(range(k), desc='K-Fold'):
-        if calibration:
-            (data_train, label_train), (data_test, label_test), (data_cal, label_cal) = k_data_calibration(data, label, i, k)
+    iter_k = k
+    
+    for i in tqdm.tqdm(range(iter_k), desc='K-Fold'):
+        if calibrations:
+            if eval_data is None or eval_label is None:
+                (data_train, label_train), (data_test, label_test), (data_cal, label_cal) = k_data_calibration(data, label, i, k)
+            else:
+                (data_train, label_train), (data_cal, label_cal) = k_data(data, label, i, k)
+                (data_test, label_test) = eval_data, eval_label
             print(f'Data_train: {data_train.shape}, Data_test: {data_test.shape}, Data_cal: {data_cal.shape}')
             print(f'Label_train: {label_train.shape}, Label_test: {label_test.shape}, Label_cal: {label_cal.shape}')
         else:
@@ -49,6 +55,7 @@ def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=F
             data_test = dr.transform(data_test)
 
         for i, model in enumerate(models):
+            print('Ok')
 
             model.fit(data_train, label_train) # if model.__class__.__name__ != 'LR' else model.fit(data_train, label_train, prior_true)
             # plt.hist(model.transform(data_train), label_train, show=True)
@@ -66,34 +73,34 @@ def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=F
                     # plt.gmm_hist(data_train, label_train, model.means, model.covariances, model.weights)
                     pass
                 # plt.ROC_curve(label_test, model.score(data_test))
-                plt.bayes_error(label_test, model.score(data_test), 2.5, cost_fp, cost_fn, title=f'bayes_error_{model.__class__.__name__}')
+                plt.bayes_error(label_test, [model.score(data_test)], 2.5, cost_fp, cost_fn, title=f'{"eval_" if (eval_data is not None and eval_label is not None) else ""}bayes_error_{model.__class__.__name__ if model.__class__.__name__ != 'DiagonalGMM' else model.__class__.__name__ + "_" + str(model.hyper_params["m"])}')
 
-        if calibration:
-            for k, indexs in enumerate(combinations_index):
+        if calibrations:
+            for z, indexs in enumerate(combinations_index):
                 score_train = np.vstack([vrow(models[i].score(data_cal)) for i in indexs])
                 score_test = np.vstack([vrow(models[i].score(data_test)) for i in indexs])
-                name = ('_').join([models[i].__class__.__name__ for i in indexs])
-
+                name = ('_').join([models[i].__class__.__name__ if models[i].__class__.__name__ != 'DiagonalGMM' else models[i].__class__.__name__ + '_' + str(models[i].hyper_params["m"]) for i in indexs])
+                
                 print(f'models: {name}')
                 print(score_train.shape, score_test.shape)
                 
-                for j, cal_priors in enumerate(calibration): 
+                for j, cal_priors in enumerate(calibrations): 
                     cal_model = LR(regularization=False)
 
                     cal_model.fit(score_train, label_cal, cal_priors)
                     predicted_label_cal = cal_model.predict_binary(score_test, prior_true, cost_fp, cost_fn)
 
-                    error_cal[k][j] += error_rate(label_test, predicted_label_cal)
-                    DCF_cal[k][j] += normalized_DCF_binary(label_test, predicted_label_cal, prior_true, cost_fp, cost_fn)
+                    error_cal[z][j] += error_rate(label_test, predicted_label_cal)
+                    DCF_cal[z][j] += normalized_DCF_binary(label_test, predicted_label_cal, prior_true, cost_fp, cost_fn)
                     model_min_DCF_cal, _ = min_normalized_DCF_binary(label_test, cal_model.score(score_test), prior_true, cost_fp, cost_fn)
-                    min_DCF_cal[k][j] += model_min_DCF_cal
+                    min_DCF_cal[z][j] += model_min_DCF_cal
             
                     if plot:
-                        plt.bayes_error(label_test, [cal_model.score(score_test)] + [score_test[i] for i in range(len(indexs))], 2.5, cost_fp, cost_fn, title=f'bayes_error_{name}_cal_{cal_priors if cal_priors is not None else "None"}')
+                        plt.bayes_error(label_test, [cal_model.score(score_test)] + [score_test[i] for i in range(len(indexs))], 2.5, cost_fp, cost_fn, title=f'{"eval_" if (eval_data is not None and eval_label is not None) else ""}bayes_error_{name}_cal_{cal_priors if cal_priors is not None else "None"}')
 
-    errors /= k
-    DCFs /= k
-    min_DCFs /= k
+    errors /= iter_k
+    DCFs /= iter_k
+    min_DCFs /= iter_k
 
     for i, model in enumerate(models):
         print(f'Model: {model.__class__.__name__} DR: {dr.__class__.__name__+ " " + str(dr.m) if dr is not None else "None"}')
@@ -103,6 +110,8 @@ def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=F
             print(f'C: {model.hyper_params["C"]}')
             if model.__class__.__name__ == 'RBFSVM':
                 print(f'Sigma: {model.hyper_params["sigma"]}')
+        if model.__class__.__name__ == 'GMM' or model.__class__.__name__ == 'DiagonalGMM' or model.__class__.__name__ == 'TiedGMM':
+            print(f'M: {model.hyper_params["m"]}')
 
         # plt.confusion_matrix(label_test, predicted_label)
 
@@ -110,14 +119,15 @@ def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=F
         print(f'DCF: {round(DCFs[i]*1000)/1000}') if DCFs[i] != np.inf else print(f'DCF: {DCFs[i]}')
         print(f'Min DCF: {round(min_DCFs[i]*1000)/1000}') if min_DCFs[i] != np.inf else print(f'Min DCF: {min_DCFs[i]}')
 
-    if calibration:
-        error_cal /= k
-        DCF_cal /= k
-        min_DCF_cal /= k
+    if calibrations:
+        error_cal /= iter_k
+        DCF_cal /= iter_k
+        min_DCF_cal /= iter_k
         
         for i, indexs in enumerate(combinations_index):
-            name = ('_').join([models[k].__class__.__name__ for k in indexs])
+            name = ('_').join([models[z].__class__.__name__ if models[z].__class__.__name__ != 'DiagonalGMM' else models[z].__class__.__name__ + '_' + str(models[z].hyper_params["m"]) for z in indexs])
             print(f'models: {name}')
+
             for j, (err, DCF_, min_DCF_) in enumerate(zip(error_cal[i], DCF_cal[i], min_DCF_cal[i])):
                 print(f'Calibration: {calibrations[j]}')
                 print(f'\tError rate: {round(err*10000)/100} %')
@@ -129,7 +139,10 @@ def k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr=None, plot=F
 if __name__ == "__main__":
 
     data, label = load_data("data/trainData.txt")
+    eval_data, eval_label = load_data("data/evalData.txt")
     data, label = shuffle_data(data, label)
+
+    print(eval_label.mean())
 
     DRs = [None] # + [PCA(i) for i in range(1, data.shape[0] + 1)]
 
@@ -137,18 +150,18 @@ if __name__ == "__main__":
     # Cs = numpy.logspace(-3, 0, 7)
     # sigmas = [1e-4, 1e-3, 1e-2, 1e-1]
 
-    k = 3
+    k = 6
     prior_true, cost_fp, cost_fn = 0.1, 1, 1
-    models = [QuadraticLR(l=0.0015), PoliSVM(C=0.003, d=4), DiagonalGMM(m=8)]
+    models = [DiagonalGMM(m=i) for i in [2, 4, 8, 16, 32]] # [PoliSVM(C=0.003, d=4), DiagonalGMM(m=8)] 
     plot = True
-    calibrations = [None, 0.1, 0.5, 0.9]
+    calibrations = [0.1]
     global_errors, global_DCFs, global_min_DCFs = [], [], []
 
     for dr in DRs:
         # for sigma in sigmas:
         #     models = [RBFSVM(C=C, sigma=sigma, K=1) for C in Cs]
         #     errors, DCFs, min_DCFs = [], [], [] 
-        error, DCF, min_DCF = k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr, plot, calibrations)
+        error, DCF, min_DCF = k_fold(data, label, models, k, prior_true, cost_fp, cost_fn, dr, plot, calibrations=calibrations, eval_data=eval_data, eval_label=eval_label)
                 # errors.append(error)
                 # DCFs.append(DCF)
                 # min_DCFs.append(min_DCF)
