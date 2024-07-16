@@ -285,6 +285,16 @@ INPUT ./images/svm_C_centered.png
 INPUT ./images/svm_C_centered.png
 INPUT ./images/svm_C_centered.png
 INPUT ./images/svm_C_centered.png
+INPUT ./images/svm_C_poly.png
+INPUT ./images/svm_C_poly.png
+INPUT ./images/svm_C_poly.png
+INPUT ./images/svm_C_poly.png
+INPUT ./images/svm_C_poly.png
+INPUT ./images/svm_C_rbf.png
+INPUT ./images/svm_C_rbf.png
+INPUT ./images/svm_C_rbf.png
+INPUT ./images/svm_C_rbf.png
+INPUT ./images/svm_C_rbf.png
 INPUT ./images/gmm_M.png
 INPUT ./images/gmm_M.png
 INPUT ./images/gmm_M.png

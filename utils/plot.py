@@ -122,15 +122,17 @@ def ROC_curve(label, score, show=SHOW):
         plt.savefig('report/images/ROC_curve.png', bbox_inches='tight')
         plt.close()
 
-def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
+def bayes_error(label, scores, value_range, cost_fp=1, cost_fn=1, show=SHOW, title='bayes_error'):
     prior_log_odds = np.linspace(-value_range, value_range, 50)
     prior_true = np.exp(prior_log_odds) / (1 + np.exp(prior_log_odds))
 
-    normalized_DCFs = np.array([eval.normalized_DCF_binary(label, score > 0, prior, cost_fp, cost_fn) for prior in prior_true])
-    min_normalized_DCFs = np.array([eval.min_normalized_DCF_binary(label, score, prior, cost_fp, cost_fn)[0] for prior in prior_true])
+    for i, score in enumerate(scores):
+        normalized_DCFs = np.array([eval.normalized_DCF_binary(label, score > 0, prior, cost_fp, cost_fn) for prior in prior_true])
+        plt.plot(prior_log_odds, normalized_DCFs, label='DCF' if i == 0 else 'Non calibrated DCF')
 
-    plt.plot(prior_log_odds, normalized_DCFs, label='Normalized DCF')
-    plt.plot(prior_log_odds, min_normalized_DCFs, label='Min normalized DCF')
+    min_normalized_DCFs = np.array([eval.min_normalized_DCF_binary(label, scores[0], prior, cost_fp, cost_fn)[0] for prior in prior_true])
+
+    plt.plot(prior_log_odds, min_normalized_DCFs, label='Min DCF', linestyle='--')
     plt.xlabel('Log odds of prior')
     plt.ylabel('DCF value')
     plt.legend()
@@ -138,7 +140,7 @@ def bayes_error(label, score, value_range, cost_fp=1, cost_fn=1, show=SHOW):
     if show:
         plt.show()
     else:
-        plt.savefig('report/images/bayes_error.png', bbox_inches='tight')
+        plt.savefig(f'report/images/{title}.png', bbox_inches='tight')
         plt.close()
 
 def hyper_params(params, DCF_values, min_DCF_values, show=SHOW, name='Params', lines=None, base=10):

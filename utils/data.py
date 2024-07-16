@@ -59,8 +59,8 @@ def k_data(data, label, index, k):
     return (data[:, train_indexes], label[train_indexes]), (data[:, test_indexes], label[test_indexes])
 
 def k_data_calibration(data, label, index, k):
-    cal_indexes = np.arange(index, data.shape[1], k)
-    test_indexes = np.arange(index + 1, data.shape[1], k)
+    cal_indexes = np.arange(index, data.shape[1], 2*k)
+    test_indexes = np.arange(index + k, data.shape[1], 2*k)
     train_indexes = np.delete(np.arange(data.shape[1]), np.concatenate([cal_indexes, test_indexes]))
 
     return (data[:, train_indexes], label[train_indexes]), (data[:, test_indexes], label[test_indexes]), (data[:, cal_indexes], label[cal_indexes])

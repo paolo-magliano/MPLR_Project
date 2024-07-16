@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1720715024.54755 "/home/paolo/Nextcloud/Scuola/Polito/4 anno/Machine learning and pattern recognition/Project/report/report.tex" "report.pdf" "report" 1720715031.54691 0
-  "/home/paolo/Nextcloud/Scuola/Polito/4 anno/Machine learning and pattern recognition/Project/report/report.tex" 1720715019.09867 36118 acba9d6b4241c359475d50cf1126ab14 ""
+["pdflatex"] 1721132823.46191 "/home/paolo/Nextcloud/Scuola/Polito/4 anno/Machine learning and pattern recognition/Project/report/report.tex" "report.pdf" "report" 1721132831.06071 0
+  "/home/paolo/Nextcloud/Scuola/Polito/4 anno/Machine learning and pattern recognition/Project/report/report.tex" 1721132818.58598 36909 cd3e4349b0bede7bc45ad26a134a1c23 ""
   "/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1716849630 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1716849630 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/jknappen/ec/tcrm0900.tfm" 1716849630 1536 c4f439db76ef96a9c53bc437f35ffe20 ""
@@ -126,9 +126,11 @@
   "images/mvg_bayes_error_tied.png" 1720621106.70413 29626 22ff24650d71db3f77ce4d27553cb739 ""
   "images/svm_C.png" 1720706429.07271 17375 3bb14b0160f6b61a663756a47c84f7c7 ""
   "images/svm_C_centered.png" 1720694473.06537 13723 4bc3148d62ed4c067d16ba325922d70e ""
-  "report.aux" 1720715031.35787 13774 b71364014887b279c07bdc598142463a "pdflatex"
-  "report.out" 1720715031.36121 3923 429c3a3f63326207200dda0365695f66 "pdflatex"
-  "report.tex" 1720715019.09867 36118 acba9d6b4241c359475d50cf1126ab14 ""
+  "images/svm_C_poly.png" 1720856186.63633 19823 288f5153221f060a7774d1f785b15601 ""
+  "images/svm_C_rbf.png" 1720856186.63966 57684 b0db5b1c7fa728e3372a21ce7a7d04a4 ""
+  "report.aux" 1721132830.89228 14278 aeef3ebda392a1ccfd699243945c3b67 "pdflatex"
+  "report.out" 1721132830.89562 3923 429c3a3f63326207200dda0365695f66 "pdflatex"
+  "report.tex" 1721132818.58598 36909 cd3e4349b0bede7bc45ad26a134a1c23 ""
   (generated)
   "report.aux"
   "report.log"

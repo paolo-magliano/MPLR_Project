@@ -381,7 +381,7 @@ The results for (0.5, 1, 1) are already presented in Table \ref{tab:mvg_performa
     \label{tab:mvg_performance_9_1_1}
 \end{table}
 
-The results show that the performance of the models is strongly affected by the application setup and all the models suffer of big miscalibration error. Over all setups MVG model with full covariance matrix performs better than the others. As can be seen from min DCF values, all models can improve their performance by changing the threshold, despite they will never reach the value of (0.5, 1, 1) setup. The only setup well calibrated is (0.5, 1, 1) because the dataset is almost balanced according to the prior.
+The results show that the performance of the models is strongly affected by the application setup, but overall the models are robust to miscalibration error, thanks their probabilistic interpretation of the score. All setups MVG model with full covariance matrix performs better than the others. As can be seen from min DCF values, all models can improve a bit their performance by changing the threshold, despite they will never reach the value of (0.5, 1, 1) setup. The only setup well calibrated is (0.5, 1, 1) because the dataset is almost balanced according to the prior.
 
 \subsection{Bayes Error Plot}
 The project proposes a Bayes error plot to visualize the performance of the best MVG models: with PCA 6 for (0.1, 1, 1) application setup. The plot in Figure \ref{fig:mvg_bayes_error} compare the actual DCF and the min DCF for different application priors, understanding how well the model behaves in different scenarios.
@@ -409,7 +409,7 @@ The project proposes a Bayes error plot to visualize the performance of the best
     \label{fig:mvg_bayes_error}
 \end{figure}
 
-The Bayes error plot confirm the previous hypothesis on miscalibrated models. In fact, the actual DCF is often far from the min DCF and only in few cases the values are close to each other. 
+The Bayes error plots show how much the model is depend from application. In fact, far from train empirical prior the actual DCF is far from the min DCF and only when application prior is near to the empirical one the values are close to each other. 
 
 At the end of the experiments the best model for application (0.1, 1, 1) is the MVG model with PCA 6 and min DCF equal to 0.308. The actual model is still a bit miscalibrated but not too much.
 
@@ -440,7 +440,7 @@ The project firstly investigates the performance of Logistic Regression (LR) mod
 
 Since we have a large number of samples, regularization seems ineffective, and actually degrades actual DCF since the regularized models tend to lose the probabilistic interpretation of the scores. To better understand the role of regularization, the project analyses the results that we would obtain if we had fewer training samples. So, it repeats the previous analysis, but keep only 1 out of 100 model training sample and the results are shown in Figure \ref{fig:lr_lambda_100}.
 
-The results show that regularization is useful when the number of samples is small. In fact, there is a range of values where the actual DCF decreases proportionally with increasing values of $\lambda$. In both cases, there is point (around 0.01) where higher value of $\lambda$ degrades drastically the performance of the model because it underfits too much the data. But before this point, the regularization is useful to avoid overfitting, in particular when the number of samples is small.
+The results show that regularization is useful when the number of samples is small. In fact, there is a range of values where the actual DCF decreases proportionally with increasing values of $\lambda$. In both cases, there is point (around 0.01) where higher value of $\lambda$ degrades drastically the performance of the model because it underfits too much the data. But before this point, the regularization is useful to avoid overfitting, in particular when the number of samples is small. In all these cases the effect of regularization has a strong impact on the calibration error, infact high $\lambda$ values lead to non probabilistic score interpretation.
 
 Further analysis are done using prior-weighted models to understand the difference respect to the standard one. The results are shown in Figure \ref{fig:lr_lambda_prior} and Figure \ref{fig:lr_lambda_100_prior}.
 
@@ -491,7 +491,7 @@ The project studies the performance of LR model with affine transformation of th
 
 The results show that the performance of the model is not affected particularly by the centered features.\\\\
 
-Finally, after exploring different possible configuration, the best model is the one with the expanded feature space and $\lambda = 0.0015$ with min DCF equal to 0.269. LR models compared with MVG models perform better thanks to the expanded feature space that allows to capture the non-linear relationship between the features. This helps a lot explointing last two features that are grouped in clusters, so they are separable only with non-linear functions. Despite this MVG model is really good compared to LR linear model, in fact the min DCF are 0.308 and 0.407 respectively. This is due to the fact that the MVG model works really were when data matches the Gaussian distribution assumption.
+Finally, after exploring different possible configuration, the best model is the one with the expanded feature space and $\lambda = 0.0015$ with min DCF equal to 0.269. LR models compared with MVG models perform better thanks to the expanded feature space that allows to capture the non-linear relationship between the features. This helps a lot exploiting last two features that are grouped in clusters, so they are separable only with non-linear functions. Despite this MVG model is really good compared to LR linear model, in fact the min DCF are 0.308 and 0.407 respectively. This is due to the fact that the MVG model works really were when data matches the Gaussian distribution assumption.
 
 \section{Lab 9: Support Vector Machines}
 \label{sec:svm}
@@ -514,29 +514,31 @@ SVM is a powerful classification technique that finds the hyperplane that best s
     \end{subfigure}
 \end{figure}
 
-The results show that the performance of the model is not affected by the regularization parameter C. DCF and min DCF are almost constant for all values of C. In every case, the actual DCF is pretty higher than min DCF, this means that the model is miscalibrated and it is not robust to application setup different from the empirical prior of the dataset. The linear SVM behaves worse than other linear models, in fact the min DCF is 0.458.
+The results show that the performance of the model is not affected by the regularization parameter C. DCF and min DCF are almost constant for all values of C. In every case, the actual DCF is pretty higher than min DCF, this means that the model is miscalibrated and it is not robust to application setup different from the empirical prior of the dataset. This is due to the interpretation of the score that is non-probabilistic, so it is not able to address task with different priors from the empirical one. The linear SVM behaves worse than other linear models, in fact the min DCF is 0.458.
 
 Further analysis are done using centered dataset to understand the difference respect to the standard one. The results shown in Figure \ref{fig:svm_C_centered} confirm the same behavior. There isn't any important difference between the two cases.
 
 \subsection{Non-linear SVM}
 The project considers two non-linear SVM models with polynomial and RBF kernels. The Figure \ref{fig:svm_C_poly} and Figure \ref{fig:svm_C_rbf} show the performance of SVM models with different C and RBF graph shows also different lines, one for each value of $\gamma$.
 
-% \begin{figure}[ht]
-%     \centering
-%     \begin{subfigure}[b]{0.45\textwidth}
-%         \centering
-%         \includegraphics[width=\textwidth]{images/svm_C_poly.png}
-%         \caption{The figure shows the performance of SVM models with polynomial kernel.}
-%         \label{fig:svm_C_poly}
-%     \end{subfigure}
-%     \hfill
-%     \begin{subfigure}[b]{0.45\textwidth}
-%         \centering
-%         \includegraphics[width=\textwidth]{images/svm_C_rbf.png}
-%         \caption{The figure shows the performance of SVM models with RBF kernel.}
-%         \label{fig:svm_C_rbf}
-%     \end{subfigure}
-% \end{figure}
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/svm_C_poly.png}
+        \caption{The figure shows the performance of SVM models with polynomial kernel.}
+        \label{fig:svm_C_poly}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/svm_C_rbf.png}
+        \caption{The figure shows the performance of SVM models with RBF kernel.}
+        \label{fig:svm_C_rbf}
+    \end{subfigure}
+\end{figure}
+
+The non-linear kernel versions show dependencies from regularization, because they probably overfit more the data thanks to their complex decision functions and it's hard generalize the data behavior. Both models gives promising results around 0.3 of min DCF. For both the miscalibration error is significative, above all the RBF kernel model shows the highest DCF values.
 
 \section{Lab 10: Gaussian Mixture Models}
 \label{sec:gmm}
@@ -589,7 +591,7 @@ Before the calibration, the project compares the performance of the best models 
         \textbf{Model} & \textbf{DCF} & \textbf{Min DCF} \\
         \midrule
         LR & 0.321 & 0.3 \\
-        SVM & - & - \\
+        SVM & - & 0.223 \\
         GMM & 0.185 & 0.157 \\
         \bottomrule
     \end{tabularx}
@@ -600,7 +602,7 @@ Before the calibration, the project compares the performance of the best models 
 The configuration parameters for each model are:
 \begin{itemize}
     \item LR: expanded feature space and $\lambda = 0.0015$.
-    \item SVM: Polynomial kernel with degree 4 and c equal to 1.
+    \item SVM: Polynomial kernel with degree 4 and $C = 0.003$.
     \item GMM: 8 components and full covariance matrix.
 \end{itemize}
 
