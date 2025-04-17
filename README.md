@@ -36,4 +36,4 @@ The project performs a thorough evaluation of multiple classification models on 
 
 The final fused model demonstrated strong generalization on the evaluation set, validating its effectiveness across multiple application scenarios.
 
-For more detail look at the repot.pdf file.
+**For detailed analysis, methodology, and experimental results, please refer to the `report.pdf` file.**
